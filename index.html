@@ -561,9 +561,6 @@
         ],
         Administrador: [
           ["ini", "Inicio", 0],
-          ["sup", "Panel de supervisión", 0],
-          ["roles", "Roles y funciones", 0],
-          ["bit", "Bitácora de actividad", 0],
           ["rrev", "Revisar reposiciones", 4],
           ["med", "Consultar medicamentos", 4],
         ],
@@ -587,15 +584,15 @@
           { id: 3, nom: "Dra. Sexther Diaz Gonzales", esp: "Ginecología" },
         ],
         med: [
-          [1, "Paracetamol 500 mg", 0.5, 200],
-          [2, "Ibuprofeno 400 mg", 0.8, 120],
-          [3, "Amoxicilina 500 mg", 1.5, 60],
-          [4, "Loratadina 10 mg", 0.7, 80],
-          [5, "Omeprazol 20 mg", 0.9, 5],
-          [6, "Cloroformo", 18, 3],
-          [7, "Suero oral", 2.5, 40],
-          [8, "Diclofenaco 50 mg", 0.6, 90],
-        ].map((m) => ({ id: m[0], nom: m[1], pr: m[2], st: m[3] })),
+          [1, "Paracetamol 500 mg", 0.5, 200, 0.3],
+          [2, "Ibuprofeno 400 mg", 0.8, 120, 0.5],
+          [3, "Amoxicilina 500 mg", 1.5, 60, 1],
+          [4, "Loratadina 10 mg", 0.7, 80, 0.4],
+          [5, "Omeprazol 20 mg", 0.9, 5, 0.55],
+          [6, "Cloroformo", 18, 3, 11],
+          [7, "Suero oral", 2.5, 40, 1.6],
+          [8, "Diclofenaco 50 mg", 0.6, 90, 0.35],
+        ].map((m) => ({ id: m[0], nom: m[1], pr: m[2], st: m[3], pc: m[4] })),
         cit: [],
         pag: [],
         pre: [],
@@ -604,7 +601,6 @@
         res: [],
         ord: [],
         rep: [],
-        log: [],
       });
       /* BASE DE DATOS LOCAL Y SESION */
       let D;
@@ -612,6 +608,12 @@
         D = JSON.parse(localStorage.getItem(K));
       } catch (e) {}
       D = D || seed();
+      D.med.forEach((m) => {
+        if (m.pc == null) {
+          const s0 = seed().med.find((x) => x.id == m.id);
+          m.pc = s0 ? s0.pc : +(m.pr * 0.65).toFixed(2);
+        }
+      });
       let U = null,
         V = "ini",
         ST = {};
@@ -633,25 +635,12 @@
           }
         },
         nid = () => ++D.n;
-      const lg = (x, ok = true) => {
-        if (!U) return;
-        (D.log = D.log || []).push({
-          f: new Date().toLocaleString("es-PE"),
-          u: U.n,
-          r: U.t || U.r,
-          ok,
-          x,
-        });
-        if (D.log.length > 300) D.log.shift();
-      };
       const toast = (m, t = "ok") => {
         const e = document.createElement("div");
         e.className = "t " + t;
         e.textContent = m;
         $("toast").append(e);
         setTimeout(() => e.remove(), 4200);
-        lg(m, t == "ok");
-        if (t == "ok") save();
       };
       const S = (n) => "S/ " + Number(n).toFixed(2),
         today = () => new Date().toISOString().slice(0, 10);
@@ -896,24 +885,26 @@ ${T(
         },
         rsol() {
           return `<div class="card"><h2>Solicitar reposición</h2><form onsubmit="A.rsol(event)">${T(
-            ["Medicamento", "Stock", "Cantidad a solicitar"],
+            ["Medicamento", "Stock", "Precio de compra (fijo)", "Cantidad a solicitar"],
             D.med.map((m) => [
               esc(m.nom),
               m.st <= 10 ? `<span class="low">${m.st}</span>` : m.st,
-              `<input type="number" min="0" name="m${m.id}" value="0" style="width:90px;margin:0">`,
+              S(m.pc),
+              `<input type="number" min="0" name="m${m.id}" value="0" oninput="rsTot()" style="width:90px;margin:0">`,
             ]),
-          )}<p><button>Enviar solicitud</button></p></form></div>
+          )}<p>Total estimado del pedido: <b id="rst">S/ 0.00</b></p><p><button>Enviar solicitud</button></p></form></div>
 <div class="card"><h2>Mis solicitudes</h2>${RT()}</div>`;
         },
         rrev() {
           return `<div class="card"><h2>Solicitudes pendientes</h2>${T(
-            ["N°", "Detalle", "Proveedor", "Decisión"],
+            ["N°", "Detalle", "Total estimado", "Proveedor y RUC", "Decisión"],
             D.rep
               .filter((r) => r.estado == "Pendiente")
               .map((r) => [
                 "#" + r.id,
-                r.it.map((i) => `${i.c}× ${esc(med(i.m).nom)}`).join("<br>"),
-                `<input id="pv${r.id}" placeholder="Proveedor" style="margin:0">`,
+                RL(r),
+                S(RTOT(r)),
+                `<input id="pv${r.id}" placeholder="Proveedor" style="margin:0 0 6px"><input id="ruc${r.id}" placeholder="RUC (11 dígitos)" inputmode="numeric" maxlength="11" style="margin:0">`,
                 `<button class="sm" onclick="A.rev(${r.id},1)">Aprobar</button> <button class="sm d" onclick="A.rev(${r.id},0)">Rechazar</button>`,
               ]),
             "No hay solicitudes pendientes.",
@@ -927,11 +918,12 @@ ${T(
               .map(
                 (
                   r,
-                ) => `<form class="card" onsubmit="A.rrec(event)"><input type="hidden" name="id" value="${r.id}"><b>Pedido #${r.id}</b> · Proveedor: ${esc(r.prov)}
+                ) => `<form class="card" onsubmit="A.rrec(event)"><input type="hidden" name="id" value="${r.id}"><b>Pedido #${r.id}</b> · Proveedor: ${esc(r.prov)} · RUC ${esc(r.ruc)} · Valor del pedido: <b>${S(RTOT(r))}</b>
 ${T(
-  ["Medicamento", "Solicitadas", "Recibidas", "Aceptadas"],
+  ["Medicamento", "Precio de compra", "Solicitadas", "Recibidas", "Aceptadas"],
   r.it.map((i, k) => [
     esc(med(i.m).nom),
+    S(pcOf(i)),
     i.c,
     `<input type="number" min="0" name="r${k}" value="${i.c}" style="width:90px;margin:0">`,
     `<input type="number" min="0" name="a${k}" value="${i.c}" style="width:90px;margin:0">`,
@@ -1140,10 +1132,13 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
           "Pedir al administrador que autorice la compra de medicamentos con poco stock.",
           [
             "El farmacéutico revisa el stock.",
-            "Indica la cantidad necesaria de cada medicamento.",
+            "Indica la cantidad necesaria de cada medicamento; el sistema muestra su precio de compra fijo y el total estimado.",
             "La solicitud queda en estado Pendiente.",
           ],
-          ["Debe incluir al menos un medicamento con cantidad mayor que cero."],
+          [
+            "Debe incluir al menos un medicamento con cantidad mayor que cero.",
+            "Cada medicamento tiene un precio de compra fijo (no editable); el sistema calcula el total estimado del pedido.",
+          ],
         ],
         [
           "RF-13",
@@ -1153,12 +1148,12 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
           "Farmacia y reposición",
           "Decidir si se autoriza el pedido y a qué proveedor se encarga.",
           [
-            "El administrador revisa las solicitudes Pendientes.",
-            "Aprueba indicando el proveedor, o rechaza la solicitud.",
+            "El administrador revisa las solicitudes Pendientes y su total estimado.",
+            "Aprueba indicando el proveedor y su RUC, o rechaza la solicitud.",
             "La solicitud pasa a Aprobada o Rechazada.",
           ],
           [
-            "Para aprobar es obligatorio registrar el proveedor.",
+            "Para aprobar es obligatorio registrar el proveedor y su RUC (11 dígitos válidos, que empiecen con 10, 15, 16, 17 o 20).",
             "El sistema registra el pedido, pero no paga al proveedor: ese pago se gestiona por separado.",
           ],
         ],
@@ -1196,142 +1191,29 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
     <p><b>Reglas</b></p><ul>${r[7].map((x) => `<li>${x}</li>`).join("")}</ul></details>`,
         ).join("");
 
-      /* SUPERVISION DEL ADMINISTRADOR */
-      const REQROL = {
-        Recepcionista: "RF-02, RF-03, RF-05, RF-09",
-        Cajero: "RF-04, RF-10, RF-11 (cobro)",
-        Enfermero: "RF-06",
-        Médico: "RF-07, RF-08, RF-09 (consulta), RF-10",
-        Farmacéutico: "RF-10, RF-11, RF-12, RF-14",
-        Administrador: "RF-13, RF-10",
+      /* VALIDACION DE RUC */
+      const rucOk = (r) => {
+        if (!/^(10|15|16|17|20)[0-9]{9}$/.test(r)) return false;
+        const w = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2],
+          t = w.reduce((a, x, i) => a + x * +r[i], 0);
+        return (11 - (t % 11)) % 10 == +r[10];
       };
-      const KP = (a) =>
-        `<div class="kpi">${a.map((x) => `<div><b>${x[0]}</b>${x[1]}</div>`).join("")}</div>`;
-      VW.sup = () => {
-        const n = (a, f) => a.filter(f).length,
-          c = (e) => n(D.cit, (x) => x.estado == e),
-          o = (e) => n(D.ord, (x) => x.estado == e),
-          p = (e) => n(D.rep, (x) => x.estado == e),
-          sinPago = n(D.cit, (x) => x.estado == "Programada" && !citPaid(x)),
-          pagadas = n(D.cit, (x) => x.estado == "Programada" && citPaid(x)),
-          bajos = D.med.filter((m) => m.st <= 10),
-          pend = [
-            ["Caja", "Consultas sin pago", sinPago],
-            ["Caja", "Órdenes de medicamentos por cobrar", o("Preparada")],
-            ["Recepción", "Citas pagadas por confirmar", pagadas],
-            ["Enfermería", "Citas confirmadas sin preconsulta", c("Confirmada")],
-            ["Médicos", "Pacientes con preconsulta esperando atención", c("Preconsulta")],
-            ["Farmacia", "Órdenes pagadas por entregar", o("Pagada")],
-            ["Farmacia", "Pedidos aprobados por recibir", p("Aprobada")],
-            ["Administración", "Solicitudes de reposición por revisar", p("Pendiente")],
-            ["Farmacia", "Medicamentos con stock bajo (10 o menos)", bajos.length],
-          ].filter((x) => x[2] > 0),
-          gap = '<div style="margin-top:12px"></div>';
-        return `<div class="card"><h2>Pendientes por área</h2>${T(
-          ["Área", "Pendiente", "Cantidad"],
-          pend.map((x) => [x[0], x[1], `<b>${x[2]}</b>`]),
-          "Todo al día: no hay pendientes.",
-        )}</div>
-<div class="card"><h2>Pacientes y citas (Recepción)</h2>${KP([
-          [D.pac.length, "Pacientes"],
-          [c("Programada"), "Programadas"],
-          [c("Confirmada"), "Confirmadas"],
-          [c("Preconsulta"), "En preconsulta"],
-          [c("Atendida"), "Atendidas"],
-          [D.res.length, "Resultados externos"],
-        ])}</div>
-<div class="card"><h2>Caja</h2>${KP([
-          [D.pag.length, "Pagos registrados"],
-          [S(D.pag.reduce((s, x) => s + x.monto, 0)), "Recaudado (simulado)"],
-          [sinPago + o("Preparada"), "Conceptos por cobrar"],
-        ])}</div>
-<div class="card"><h2>Atención médica</h2>${KP([
-          [D.pre.length, "Preconsultas"],
-          [D.ate.length, "Atenciones"],
-          [D.dcs.length, "Documentos médicos"],
-        ])}${gap}${T(
-          ["Médico", "Especialidad", "Programadas", "Confirmadas", "En espera", "Atendidas"],
-          D.doc.map((d) => {
-            const k = (e) => D.cit.filter((x) => x.did == d.id && x.estado == e).length;
-            return [
-              esc(d.nom),
-              esc(d.esp),
-              k("Programada"),
-              k("Confirmada"),
-              k("Preconsulta"),
-              k("Atendida"),
-            ];
-          }),
-        )}</div>
-<div class="card"><h2>Farmacia y reposición</h2>${KP([
-          [o("Preparada"), "Órdenes preparadas"],
-          [o("Pagada"), "Órdenes pagadas"],
-          [o("Entregada"), "Órdenes entregadas"],
-          [p("Pendiente"), "Reposiciones pendientes"],
-          [p("Aprobada"), "Aprobadas"],
-          [p("Recibida"), "Recibidas"],
-        ])}${gap}${T(
-          ["Medicamento", "Stock", "Precio"],
-          bajos.map((m) => [esc(m.nom), `<span class="low">${m.st}</span>`, S(m.pr)]),
-          "No hay medicamentos con stock bajo.",
-        )}</div>`;
+
+      /* PRECIOS DE COMPRA */
+      const VERC = () => U && (U.r == "Farmacéutico" || U.r == "Administrador");
+      const pcOf = (i) => i.pc ?? med(i.m).pc ?? 0;
+      const RL = (r) =>
+        r.it.map((i) => `${i.c}× ${esc(med(i.m).nom)} · ${S(pcOf(i))} c/u`).join("<br>");
+      const RTOT = (r) => r.it.reduce((t, i) => t + i.c * pcOf(i), 0);
+      const rsTot = () => {
+        let t = 0;
+        D.med.forEach((m) => {
+          const i = document.querySelector(`[name=m${m.id}]`);
+          t += (+(i && i.value) || 0) * m.pc;
+        });
+        $("rst").textContent = S(t);
       };
-      VW.roles = () => {
-        const L = D.log || [];
-        return `<div class="card"><h2>Roles, responsables y funciones</h2><p class="mut">Seis roles operan sobre los mismos datos. Las cifras salen de la bitácora de este navegador.</p>${T(
-          [
-            "Rol",
-            "Responsable",
-            "Usuario",
-            "Funciones (menú)",
-            "Requisitos",
-            "Acciones correctas",
-            "Rechazadas",
-            "Última actividad",
-          ],
-          USERS.map((u) => {
-            const l = L.filter((x) => x.u == u.n),
-              z = l[l.length - 1];
-            return [
-              `<b>${esc(u.t || u.r)}</b>`,
-              esc(u.n),
-              `<code>${u.u}</code>`,
-              MENU[u.r]
-                .filter((x) => x[2] != 0)
-                .map((x) => x[1])
-                .join(", ") || "Solo consulta",
-              REQROL[u.r],
-              l.filter((x) => x.ok).length,
-              l.filter((x) => !x.ok).length
-                ? `<span class="low">${l.filter((x) => !x.ok).length}</span>`
-                : 0,
-              z
-                ? `${esc(z.f)}<br><span class="mut">${esc(z.x)}</span>`
-                : '<span class="mut">Sin actividad</span>',
-            ];
-          }),
-        )}<p class="mut">RF-01 (acceder al sistema) aplica a los seis roles.</p></div>`;
-      };
-      VW.bit = () => {
-        const fr = ST.fr || "",
-          L = (D.log || [])
-            .filter((x) => !fr || x.r == fr)
-            .slice(-100)
-            .reverse();
-        return `<div class="card"><h2>Bitácora de actividad</h2><p class="mut">Muestra las últimas 100 acciones. Las rechazadas son intentos que el sistema bloqueó por una regla (por ejemplo, confirmar sin pago).</p>
-<div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap"><label style="flex:1;min-width:200px">Filtrar por rol<select onchange="ST.fr=this.value;render()"><option value="">Todos</option>${USERS.map((u) => `<option ${fr == (u.t || u.r) ? "selected" : ""}>${esc(u.t || u.r)}</option>`).join("")}</select></label><button class="s d" onclick="A.clog()">Vaciar bitácora</button></div>
-<div style="margin-top:12px"></div>${T(
-          ["Fecha", "Rol", "Usuario", "Acción", "Resultado"],
-          L.map((x) => [
-            esc(x.f),
-            esc(x.r),
-            esc(x.u),
-            esc(x.x),
-            x.ok ? B("Correcto", "ok") : B("Rechazado", "er"),
-          ]),
-          "Aún no hay actividad registrada.",
-        )}</div>`;
-      };
+
       /* TABLAS REUTILIZABLES */
       const SUP = () =>
         U.jefe
@@ -1352,12 +1234,13 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
           : "";
       const RT = () =>
         T(
-          ["N°", "Detalle", "Estado", "Proveedor", "Recepción"],
+          ["N°", "Detalle", "Total", "Estado", "Proveedor", "Recepción"],
           D.rep.map((r) => [
             "#" + r.id,
-            r.it.map((i) => `${i.c}× ${esc(med(i.m).nom)}`).join("<br>"),
+            RL(r),
+            S(RTOT(r)),
             eb(r.estado),
-            esc(r.prov || "–"),
+            r.prov ? esc(r.prov) + '<br><span class="mut">RUC ' + esc(r.ruc) + "</span>" : "–",
             r.rec
               ? r.rec.map((x) => `${esc(med(x.m).nom)}: rec. ${x.r}, acept. ${x.a}`).join("<br>") +
                 (r.ob ? "<br><i>" + esc(r.ob) + "</i>" : "")
@@ -1380,14 +1263,21 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
         );
       };
       const LM = () => {
-        const q = (ST.q || "").toLowerCase();
+        const q = (ST.q || "").toLowerCase(),
+          v = VERC();
         return T(
-          ["Medicamento", "Precio", "Stock"],
+          [
+            "Medicamento",
+            v ? "Precio de venta" : "Precio",
+            ...(v ? ["Precio de compra (fijo)"] : []),
+            "Stock",
+          ],
           D.med
             .filter((m) => m.nom.toLowerCase().includes(q))
             .map((m) => [
               esc(m.nom),
               S(m.pr),
+              ...(v ? [S(m.pc)] : []),
               m.st <= 10 ? `<span class="low">${m.st} (bajo)</span>` : m.st,
             ]),
         );
@@ -1435,8 +1325,6 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
           V = "ini";
           ST = {};
           sessionStorage.setItem("csv_u", JSON.stringify(u));
-          lg("Inició sesión");
-          save();
           render();
         },
         fill(u) {
@@ -1445,16 +1333,7 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
           document.querySelector("input[name=p]").value = x.p;
           toast("Datos de " + x.r + " cargados. Pulse Iniciar sesión.");
         },
-        clog() {
-          if (confirm("¿Vaciar la bitácora de actividad?")) {
-            D.log = [];
-            save();
-            render();
-          }
-        },
         logout() {
-          lg("Cerró sesión");
-          save();
           U = null;
           sessionStorage.removeItem("csv_u");
           render();
@@ -1647,7 +1526,9 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
         },
         rsol(e) {
           const d = fd(e),
-            it = D.med.map((m) => ({ m: m.id, c: +d["m" + m.id] || 0 })).filter((i) => i.c > 0);
+            it = D.med
+              .map((m) => ({ m: m.id, c: +d["m" + m.id] || 0, pc: m.pc }))
+              .filter((i) => i.c > 0);
           if (!it.length) return toast("Seleccione al menos un medicamento", "err");
           D.rep.push({ id: nid(), it, estado: "Pendiente" });
           save();
@@ -1656,11 +1537,22 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
         },
         rev(id, ok) {
           const r = D.rep.find((x) => x.id == id),
-            pv = $("pv" + id).value.trim();
+            pv = $("pv" + id).value.trim(),
+            ruc = $("ruc" + id).value.trim();
           if (r.estado != "Pendiente") return;
           if (ok && !pv) return toast("Indique el proveedor para aprobar", "err");
+          if (ok && !ruc)
+            return toast("El proveedor debe tener RUC: ingréselo para aprobar", "err");
+          if (ok && !rucOk(ruc))
+            return toast(
+              "RUC inválido: debe tener 11 dígitos, iniciar con 10, 15, 16, 17 o 20 y un dígito verificador correcto",
+              "err",
+            );
           r.estado = ok ? "Aprobada" : "Rechazada";
-          if (ok) r.prov = pv;
+          if (ok) {
+            r.prov = pv;
+            r.ruc = ruc;
+          }
           save();
           toast(ok ? "Solicitud aprobada" : "Solicitud rechazada");
           render();
@@ -1768,8 +1660,7 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
         Médico: "Atención, Historia clínica y Consultar medicamentos.",
         Farmacéutico:
           "Consultar medicamentos, Órdenes y entrega, Solicitar reposición y Registrar recepción.",
-        Administrador:
-          "Panel de supervisión, Roles y funciones, Bitácora de actividad, Revisar reposiciones y Consultar medicamentos.",
+        Administrador: "Revisar reposiciones y Consultar medicamentos.",
       };
       const rolTxt = () =>
         U
@@ -1908,7 +1799,7 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
         {
           t: "Consultar medicamentos",
           k: ["medicamento", "stock", "precio", "farmacia", "inventario"],
-          a: "Menú <b>Consultar medicamentos</b> (Cajero, Médico, Farmacéutico y Administrador): escriba parte del nombre para ver precio y stock. En rojo aparecen los stocks de 10 unidades o menos.",
+          a: "Menú <b>Consultar medicamentos</b> (Cajero, Médico, Farmacéutico y Administrador): escriba parte del nombre para ver precio y stock. En rojo aparecen los stocks de 10 unidades o menos. El Farmacéutico y el Administrador ven además el precio de compra fijo.",
         },
         {
           r: "Farmacéutico",
@@ -1919,14 +1810,14 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
         {
           r: "Farmacéutico",
           t: "Solicitar reposición",
-          k: ["reposicion", "repon", "solicitar", "pedido", "stock bajo"],
-          a: "Menú <b>Solicitar reposición</b>: indique la cantidad de cada medicamento que necesita (los de poco stock aparecen en rojo) y pulse <b>Enviar solicitud</b>. Queda Pendiente hasta que el administrador la revise.",
+          k: ["reposicion", "repon", "solicitar", "pedido", "stock bajo", "compra", "costo"],
+          a: "Menú <b>Solicitar reposición</b>: indique la cantidad de cada medicamento que necesita (los de poco stock aparecen en rojo). Cada medicamento tiene un precio de compra fijo y el total estimado se calcula solo; luego pulse <b>Enviar solicitud</b>. Queda Pendiente hasta que el administrador la revise.",
         },
         {
           r: "Administrador",
           t: "Aprobar o rechazar reposiciones",
-          k: ["aprobar", "rechazar", "proveedor", "administrador", "revisar"],
-          a: "Menú <b>Revisar reposiciones</b>: en cada solicitud Pendiente escriba el proveedor y pulse <b>Aprobar</b> (el proveedor es obligatorio), o pulse <b>Rechazar</b>. El sistema no paga al proveedor.",
+          k: ["aprobar", "rechazar", "proveedor", "sunat", "administrador", "revisar"],
+          a: "Menú <b>Revisar reposiciones</b>: en cada solicitud Pendiente revise el total estimado, escriba el proveedor y su <b>RUC</b> (11 dígitos, obligatorio) y pulse <b>Aprobar</b>, o pulse <b>Rechazar</b>. El sistema no paga al proveedor.",
         },
         {
           r: "Farmacéutico",
@@ -1948,35 +1839,9 @@ ${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar 
             "duplicado",
             "no sale",
           ],
-          a: "<b>No se confirma la cita:</b> falta el pago en Caja.<br><b>No hay horarios:</b> el médico ya los tiene ocupados; pruebe otra fecha u otro médico.<br><b>DNI duplicado:</b> ya existe un paciente con ese DNI.<br><b>No se entrega la orden:</b> falta el pago o el stock no alcanza.<br><b>No veo pacientes en Atención:</b> la cita debe tener preconsulta y ser de su médico (el jefe ve todas).<br><b>Recepción rechazada:</b> las aceptadas superan a las recibidas.",
+          a: "<b>No se confirma la cita:</b> falta el pago en Caja.<br><b>No hay horarios:</b> el médico ya los tiene ocupados; pruebe otra fecha u otro médico.<br><b>DNI duplicado:</b> ya existe un paciente con ese DNI.<br><b>No se entrega la orden:</b> falta el pago o el stock no alcanza.<br><b>No veo pacientes en Atención:</b> la cita debe tener preconsulta y ser de su médico (el jefe ve todas).<br><b>Recepción rechazada:</b> las aceptadas superan a las recibidas.<br><b>RUC inválido:</b> debe tener 11 dígitos, empezar con 10, 15, 16, 17 o 20 y tener un dígito verificador correcto (ejemplo de prueba: 20123456786).",
         },
       ];
-      AYUDA.push(
-        {
-          r: "Administrador",
-          t: "Panel de supervisión",
-          k: ["panel", "supervis", "pendiente", "alerta", "resumen", "monitor", "todo al dia"],
-          a: "Menú <b>Panel de supervisión</b>: muestra los pendientes por área (Caja, Recepción, Enfermería, Médicos, Farmacia y Administración), las cifras de cada módulo, la carga de cada médico y los medicamentos con stock bajo.",
-        },
-        {
-          r: "Administrador",
-          t: "Roles y funciones",
-          k: ["roles", "funciones", "responsable", "quien hace", "permisos de"],
-          a: "Menú <b>Roles y funciones</b>: tabla con cada rol, su responsable, usuario, módulos del menú, requisitos que cubre, acciones correctas y rechazadas, y su última actividad.",
-        },
-        {
-          r: "Administrador",
-          t: "Bitácora de actividad",
-          k: [
-            "bitacora",
-            "historial de acciones",
-            "auditoria",
-            "actividad",
-            "registro de acciones",
-          ],
-          a: "Menú <b>Bitácora de actividad</b>: lista las últimas 100 acciones de todos los roles, con fecha, usuario y resultado. Las <i>rechazadas</i> son intentos bloqueados por una regla del sistema. Puede filtrar por rol o vaciar la bitácora.",
-        },
-      );
       function msg(html, w) {
         const m = document.createElement("div");
         m.className = "mg " + w;
