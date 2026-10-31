@@ -1,0 +1,2084 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Clínica Salud Vida – Prototipo académico</title>
+    <style>
+      /* CSS */
+      /* VARIABLES DE COLOR */
+      :root {
+        --bg: #f3f8f7;
+        --ink: #16323a;
+        --mut: #5b7480;
+        --pri: #0f766e;
+        --soft: #e0f2ef;
+        --bd: #d3e2e4;
+        --ok: #15803d;
+        --er: #b91c1c;
+        --wa: #b45309;
+        --card: #fff;
+        --bd2: #b9cdd1;
+      }
+      html {
+        font-size: var(--fs, 15px);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--ff, "Segoe UI", system-ui, sans-serif);
+        font-size: 1rem;
+        line-height: 1.45;
+        background: var(--bg);
+        color: var(--ink);
+      }
+      /* ESTRUCTURA Y MENU LATERAL */
+      .app {
+        display: flex;
+        min-height: 100vh;
+      }
+      aside {
+        width: 250px;
+        background: var(--card);
+        border-right: 1px solid var(--bd);
+        padding: 18px 12px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: auto;
+        flex-shrink: 0;
+      }
+      .brand {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--pri);
+        padding: 0 8px 4px;
+      }
+      .who {
+        font-size: 0.867rem;
+        color: var(--mut);
+        padding: 0 8px 12px;
+        border-bottom: 1px solid var(--bd);
+        margin-bottom: 8px;
+      }
+      .sec {
+        font-size: 0.733rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--mut);
+        margin: 14px 8px 4px;
+      }
+      aside a {
+        display: block;
+        padding: 8px 10px;
+        border-radius: 8px;
+        color: var(--ink);
+        text-decoration: none;
+        cursor: pointer;
+      }
+      aside a:hover {
+        background: var(--soft);
+      }
+      aside a.on {
+        background: var(--pri);
+        color: #fff;
+      }
+      /* CONTENIDO PRINCIPAL */
+      main {
+        flex: 1;
+        padding: 24px 28px 90px;
+        max-width: 1100px;
+        min-width: 0;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 1.6rem;
+      }
+      h2 {
+        font-size: 1.133rem;
+        margin: 0 0 10px;
+      }
+      .sub {
+        color: var(--mut);
+        margin: 0 0 18px;
+      }
+      /* TARJETAS Y TABLAS */
+      .card {
+        background: var(--card);
+        border: 1px solid var(--bd);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.933rem;
+      }
+      th {
+        text-align: left;
+        color: var(--mut);
+        font-weight: 600;
+        border-bottom: 2px solid var(--bd);
+        padding: 7px 8px;
+      }
+      td {
+        padding: 8px;
+        border-bottom: 1px solid var(--bd);
+        vertical-align: middle;
+      }
+      .tw {
+        overflow-x: auto;
+      }
+      /* FORMULARIOS Y BOTONES */
+      form.g {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        align-items: end;
+      }
+      label {
+        display: block;
+        font-size: 0.867rem;
+        font-weight: 600;
+        color: var(--mut);
+      }
+      label b {
+        color: var(--er);
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--bd2);
+        border-radius: 8px;
+        font: inherit;
+        background: var(--card);
+        color: var(--ink);
+        margin-top: 3px;
+      }
+      textarea {
+        min-height: 70px;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: 2px solid #5eead4;
+        border-color: var(--pri);
+      }
+      button,
+      .btn {
+        background: var(--pri);
+        color: #fff;
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover {
+        filter: brightness(1.1);
+      }
+      button.s {
+        background: var(--card);
+        color: var(--pri);
+        border: 1px solid var(--pri);
+      }
+      button.d {
+        background: var(--er);
+      }
+      button.sm {
+        padding: 4px 10px;
+        font-size: 0.867rem;
+      }
+      /* ETIQUETAS DE ESTADO */
+      .bd {
+        display: inline-block;
+        padding: 2px 9px;
+        border-radius: 99px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: #e5eef0;
+        color: #37505a;
+      }
+      .bd.ok {
+        background: #dcfce7;
+        color: var(--ok);
+      }
+      .bd.wa {
+        background: #fef3c7;
+        color: var(--wa);
+      }
+      .bd.er {
+        background: #fee2e2;
+        color: var(--er);
+      }
+      .bd.in {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+      /* MENSAJES Y VENTANA EMERGENTE */
+      #toast {
+        position: fixed;
+        top: 14px;
+        right: 14px;
+        z-index: 99;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .t {
+        padding: 10px 14px;
+        border-radius: 8px;
+        color: #fff;
+        box-shadow: 0 4px 14px #0003;
+        max-width: 360px;
+      }
+      .t.ok {
+        background: var(--ok);
+      }
+      .t.err {
+        background: var(--er);
+      }
+      #modal {
+        position: fixed;
+        inset: 0;
+        background: #0008;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        padding: 14px;
+      }
+      #modal.on {
+        display: flex;
+      }
+      .paper {
+        background: var(--card);
+        border-radius: 10px;
+        padding: 26px;
+        width: min(460px, 100%);
+        max-height: 92vh;
+        overflow: auto;
+      }
+      .paper h3 {
+        margin: 0 0 2px;
+        color: var(--pri);
+      }
+      .paper pre {
+        white-space: pre-wrap;
+        font: inherit;
+        background: var(--soft);
+        padding: 10px;
+        border-radius: 8px;
+      }
+      /* LOGIN, INICIO Y UTILIDADES */
+      .login {
+        max-width: 520px;
+        margin: 40px auto;
+        padding: 0 14px;
+      }
+      .mut {
+        color: var(--mut);
+        font-size: 0.867rem;
+      }
+      .kpi {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+      .kpi div {
+        background: var(--soft);
+        border-radius: 10px;
+        padding: 12px;
+      }
+      .kpi b {
+        font-size: 1.467rem;
+        display: block;
+        color: var(--pri);
+      }
+      .low {
+        color: var(--er);
+        font-weight: 700;
+      }
+      /* VENTANA DE REQUISITOS */
+      details.card summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--pri);
+      }
+      details.card[open] summary {
+        margin-bottom: 8px;
+      }
+      details.card li {
+        margin: 3px 0;
+      }
+
+      /* TEMAS, APARIENCIA Y AYUDA */
+      main a {
+        color: var(--pri);
+      }
+      :root[data-tema="oscuro"] {
+        --bg: #0f1b1f;
+        --ink: #e6f1f2;
+        --mut: #9fb6bd;
+        --pri: #0d9488;
+        --soft: #1b3a40;
+        --bd: #2b4249;
+        --bd2: #3b5a63;
+        --card: #16262b;
+        --ok: #4ade80;
+        --er: #f87171;
+        --wa: #fbbf24;
+      }
+      :root[data-tema="contraste"] {
+        --bg: #ffffff;
+        --ink: #000000;
+        --mut: #222222;
+        --pri: #00467f;
+        --soft: #e8e8e8;
+        --bd: #000000;
+        --bd2: #000000;
+        --card: #ffffff;
+        --ok: #006400;
+        --er: #a00000;
+        --wa: #7a3b00;
+      }
+      :root[data-tema="calido"] {
+        --bg: #f6f0e4;
+        --ink: #3b2f2f;
+        --mut: #6f5f55;
+        --pri: #8a5a2b;
+        --soft: #efe3cf;
+        --bd: #dccbb0;
+        --bd2: #c9b390;
+        --card: #fffaf0;
+      }
+      #fab {
+        position: fixed;
+        right: 14px;
+        bottom: 14px;
+        z-index: 40;
+        display: flex;
+        gap: 8px;
+      }
+      #fab button {
+        border-radius: 99px;
+        box-shadow: 0 4px 14px #0004;
+        padding: 10px 16px;
+      }
+      #bot {
+        position: fixed;
+        right: 14px;
+        bottom: 66px;
+        width: min(380px, calc(100vw - 28px));
+        height: min(540px, 72vh);
+        background: var(--card);
+        border: 1px solid var(--bd);
+        border-radius: 14px;
+        box-shadow: 0 10px 30px #0005;
+        display: none;
+        flex-direction: column;
+        z-index: 45;
+      }
+      #bot.on {
+        display: flex;
+      }
+      .bh {
+        padding: 10px 14px;
+        background: var(--pri);
+        color: #fff;
+        border-radius: 13px 13px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+      }
+      .bh button {
+        background: transparent;
+        padding: 2px 8px;
+      }
+      .bm {
+        flex: 1;
+        overflow: auto;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .mg {
+        max-width: 90%;
+        padding: 8px 11px;
+        border-radius: 12px;
+        background: var(--soft);
+      }
+      .mg.u {
+        align-self: flex-end;
+        background: var(--pri);
+        color: #fff;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 0 10px 8px;
+        max-height: 120px;
+        overflow: auto;
+      }
+      .bi {
+        display: flex;
+        gap: 6px;
+        padding: 8px;
+        border-top: 1px solid var(--bd);
+      }
+      .bi input {
+        margin: 0;
+      }
+      .sw {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid var(--bd2);
+        padding: 0;
+      }
+
+      /* ADAPTACION A PANTALLAS PEQUENAS */
+      @media (max-width: 760px) {
+        .app {
+          flex-direction: column;
+        }
+        aside {
+          width: 100%;
+          height: auto;
+          position: static;
+        }
+        main {
+          padding: 16px;
+        }
+      }
+      /* IMPRESION DE COMPROBANTES Y DOCUMENTOS */
+      @media print {
+        body > *:not(#modal) {
+          display: none !important;
+        }
+        #modal {
+          position: static;
+          background: none;
+          display: block;
+        }
+        .paper {
+          box-shadow: none;
+          max-height: none;
+        }
+        .noprint {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="modal"></div>
+    <div id="toast"></div>
+    <div id="bot">
+      <div class="bh">
+        <span>Asistente de ayuda</span>
+        <button type="button" onclick="toggleBot()" aria-label="Cerrar ayuda">✕</button>
+      </div>
+      <div class="bm" id="bm"></div>
+      <div class="chips" id="bc"></div>
+      <form class="bi" onsubmit="askF(event)">
+        <input id="bq" placeholder="Escriba su pregunta…" autocomplete="off" />
+        <button>Enviar</button>
+      </form>
+    </div>
+    <div id="fab">
+      <button type="button" onclick="toggleBot()">Ayuda</button>
+      <button type="button" class="s" onclick="openCfg()">Apariencia</button>
+    </div>
+    <script>
+      /* JS */
+      /* DATOS INICIALES Y CONFIGURACION */
+      const K = "csv_db_v1",
+        HORAS = ["08:00", "09:00", "10:00", "11:00", "15:00", "16:00"],
+        PRECIO = { Inicial: 80, Control: 50 };
+      const USERS = [
+        { u: "recepcion", p: "rec123", r: "Recepcionista", n: "Yorvy Morales" },
+        { u: "cajero", p: "caj123", r: "Cajero", n: "Michel Lobato" },
+        { u: "enfermero", p: "enf123", r: "Enfermero", n: "Patrick Silva" },
+        {
+          u: "medico",
+          p: "med123",
+          r: "Médico",
+          n: "Dr. Jose Vigo",
+          did: 1,
+          t: "Jefe de médicos",
+          jefe: true,
+        },
+        { u: "farmacia", p: "far123", r: "Farmacéutico", n: "Jhair Cholan" },
+        { u: "admin", p: "adm123", r: "Administrador", n: "Ing. Florian" },
+      ];
+      const SEC = [
+        "Seguridad",
+        "Pacientes y citas",
+        "Caja",
+        "Atención médica",
+        "Farmacia y reposición",
+      ];
+      const MENU = {
+        Recepcionista: [
+          ["ini", "Inicio", 0],
+          ["pac", "Pacientes", 1],
+          ["cit", "Citas", 1],
+          ["conf", "Confirmar citas", 1],
+          ["res", "Resultados externos", 1],
+        ],
+        Cajero: [
+          ["ini", "Inicio", 0],
+          ["pag", "Registrar pagos", 2],
+          ["med", "Consultar medicamentos", 4],
+        ],
+        Enfermero: [
+          ["ini", "Inicio", 0],
+          ["pre", "Preconsulta", 3],
+        ],
+        Médico: [
+          ["ini", "Inicio", 0],
+          ["aten", "Atención", 3],
+          ["hist", "Historia clínica", 3],
+          ["med", "Consultar medicamentos", 4],
+        ],
+        Farmacéutico: [
+          ["ini", "Inicio", 0],
+          ["med", "Consultar medicamentos", 4],
+          ["ord", "Órdenes y entrega", 4],
+          ["rsol", "Solicitar reposición", 4],
+          ["rrec", "Registrar recepción", 4],
+        ],
+        Administrador: [
+          ["ini", "Inicio", 0],
+          ["sup", "Panel de supervisión", 0],
+          ["roles", "Roles y funciones", 0],
+          ["bit", "Bitácora de actividad", 0],
+          ["rrev", "Revisar reposiciones", 4],
+          ["med", "Consultar medicamentos", 4],
+        ],
+      };
+      const seed = () => ({
+        n: 100,
+        pac: [
+          { id: 1, dni: "45871236", nom: "Skibidi Alex Ruiz", fn: "1988-04-12", tel: "987654321" },
+          { id: 2, dni: "70231458", nom: "Fernando Dog SMG", fn: "1975-09-30", tel: "965412378" },
+          {
+            id: 3,
+            dni: "41236987",
+            nom: "Daivis Tturcoño Masias",
+            fn: "2015-01-20",
+            tel: "944123654",
+          },
+        ],
+        doc: [
+          { id: 1, nom: "Dra. Alexandra Antonella Parrilla Velasquez", esp: "Medicina general" },
+          { id: 2, nom: "Dr. Jorge Emilio De la Cruz Medina", esp: "Pediatría" },
+          { id: 3, nom: "Dra. Sexther Diaz Gonzales", esp: "Ginecología" },
+        ],
+        med: [
+          [1, "Paracetamol 500 mg", 0.5, 200],
+          [2, "Ibuprofeno 400 mg", 0.8, 120],
+          [3, "Amoxicilina 500 mg", 1.5, 60],
+          [4, "Loratadina 10 mg", 0.7, 80],
+          [5, "Omeprazol 20 mg", 0.9, 5],
+          [6, "Cloroformo", 18, 3],
+          [7, "Suero oral", 2.5, 40],
+          [8, "Diclofenaco 50 mg", 0.6, 90],
+        ].map((m) => ({ id: m[0], nom: m[1], pr: m[2], st: m[3] })),
+        cit: [],
+        pag: [],
+        pre: [],
+        ate: [],
+        dcs: [],
+        res: [],
+        ord: [],
+        rep: [],
+        log: [],
+      });
+      /* BASE DE DATOS LOCAL Y SESION */
+      let D;
+      try {
+        D = JSON.parse(localStorage.getItem(K));
+      } catch (e) {}
+      D = D || seed();
+      let U = null,
+        V = "ini",
+        ST = {};
+      try {
+        U = JSON.parse(sessionStorage.getItem("csv_u"));
+      } catch (e) {}
+      /* FUNCIONES AUXILIARES */
+      const $ = (id) => document.getElementById(id),
+        esc = (s) =>
+          String(s ?? "").replace(
+            /[&<>"']/g,
+            (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+          );
+      const save = () => {
+          try {
+            localStorage.setItem(K, JSON.stringify(D));
+          } catch (e) {
+            toast("No se pudo guardar en el navegador", "err");
+          }
+        },
+        nid = () => ++D.n;
+      const lg = (x, ok = true) => {
+        if (!U) return;
+        (D.log = D.log || []).push({
+          f: new Date().toLocaleString("es-PE"),
+          u: U.n,
+          r: U.t || U.r,
+          ok,
+          x,
+        });
+        if (D.log.length > 300) D.log.shift();
+      };
+      const toast = (m, t = "ok") => {
+        const e = document.createElement("div");
+        e.className = "t " + t;
+        e.textContent = m;
+        $("toast").append(e);
+        setTimeout(() => e.remove(), 4200);
+        lg(m, t == "ok");
+        if (t == "ok") save();
+      };
+      const S = (n) => "S/ " + Number(n).toFixed(2),
+        today = () => new Date().toISOString().slice(0, 10);
+      const pac = (id) => D.pac.find((p) => p.id == id) || {},
+        doc = (id) => D.doc.find((d) => d.id == id) || {},
+        med = (id) => D.med.find((m) => m.id == id) || {};
+      const citPaid = (c) => D.pag.some((p) => p.t == "cita" && p.ref == c.id);
+      const B = (t, k = "") => `<span class="bd ${k}">${esc(t)}</span>`;
+      const K_ES = {
+        Programada: "wa",
+        Confirmada: "in",
+        Preconsulta: "in",
+        Atendida: "ok",
+        Preparada: "wa",
+        Pagada: "in",
+        Entregada: "ok",
+        Pendiente: "wa",
+        Aprobada: "in",
+        Rechazada: "er",
+        Recibida: "ok",
+      };
+      const eb = (e) => B(e, K_ES[e]);
+      const T = (h, r, e = "Sin registros.") =>
+        `<div class="tw"><table><tr>${h.map((x) => `<th>${x}</th>`).join("")}</tr>${r.length ? r.map((x) => `<tr>${x.map((y) => `<td>${y}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${h.length}" class="mut">${e}</td></tr>`}</table></div>`;
+      const F = (l, i, r = 1) => `<div><label>${l}${r ? " <b>*</b>" : ""}${i}</label></div>`;
+      const opts = (a, f, sel) =>
+        a
+          .map(
+            (x) => `<option value="${x.id}" ${x.id == sel ? "selected" : ""}>${esc(f(x))}</option>`,
+          )
+          .join("");
+      const fd = (e) => {
+        e.preventDefault();
+        return Object.fromEntries(new FormData(e.target));
+      };
+      const cname = (c) =>
+        `${esc(pac(c.pid).nom)} · ${esc(doc(c.did).nom)} · ${c.fecha} ${c.hora} (${c.tipo})`;
+      const libres = (did, f) =>
+        HORAS.filter((h) => !D.cit.some((c) => c.did == did && c.fecha == f && c.hora == h));
+      const go = (v) => {
+        V = v;
+        ST = {};
+        render();
+      };
+      function show(html) {
+        $("modal").innerHTML =
+          `<div class="paper">${html}<p class="noprint" style="margin-top:14px;text-align:right"><button onclick="window.print()">Imprimir</button> <button class="s" onclick="closeM()">Cerrar</button></p></div>`;
+        $("modal").classList.add("on");
+      }
+      const closeM = () => $("modal").classList.remove("on");
+      const head = (s) => `<h3>Clínica Salud Vida</h3><div class="mut">${s}</div><hr>`;
+
+      /* PANTALLAS DE CADA MODULO */
+      const VW = {
+        ini() {
+          const q = D;
+          return `<div class="card"><h2>Bienvenido/a, ${esc(U.n)}</h2><p class="mut">Rol: ${U.t || U.r}. Solo se muestran los módulos de su rol (simulación académica, sin seguridad real).</p><div class="kpi"><div><b>${q.pac.length}</b>Pacientes</div><div><b>${q.cit.filter((c) => c.estado == "Programada").length}</b>Citas programadas</div><div><b>${q.ord.filter((o) => o.estado != "Entregada").length}</b>Órdenes abiertas</div><div><b>${q.rep.filter((r) => r.estado == "Pendiente").length}</b>Reposiciones pendientes</div></div></div>`;
+        },
+        pac() {
+          const q = (ST.q || "").toLowerCase(),
+            e = D.pac.find((p) => p.id == ST.ed) || {};
+          return `<div class="card"><h2>${e.id ? "Actualizar" : "Registrar"} paciente</h2><form class="g" onsubmit="A.pac(event)"><input type="hidden" name="id" value="${e.id || ""}">
+${F("DNI (8 dígitos)", `<input name="dni" required pattern="[0-9]{8}" value="${esc(e.dni)}">`)}${F("Nombre completo", `<input name="nom" required value="${esc(e.nom)}">`)}${F("Fecha de nacimiento", `<input type="date" name="fn" required max="${today()}" value="${e.fn || ""}">`)}${F("Teléfono", `<input name="tel" required pattern="[0-9]{7,9}" value="${esc(e.tel)}">`)}
+<div><button>${e.id ? "Guardar cambios" : "Registrar"}</button> ${e.id ? `<button type="button" class="s" onclick="ST.ed=0;render()">Cancelar</button>` : ""}</div></form></div>
+<div class="card"><h2>Buscar pacientes</h2><input placeholder="DNI o nombre…" value="${esc(ST.q)}" oninput="ST.q=this.value;rr('lp')">
+<div id="lp">${LP()}</div></div>`;
+        },
+        cit() {
+          const did = ST.did || D.doc[0].id,
+            f = ST.f || today();
+          return `<div class="card"><h2>Programar cita</h2><form class="g" onsubmit="A.cit(event)">
+${F("Paciente", `<select name="pid" required><option value="">Seleccione…</option>${opts(D.pac, (p) => p.dni + " – " + p.nom)}</select>`)}
+${F("Médico", `<select name="did" onchange="ST.did=this.value;ST.f=this.form.f.value;render()">${opts(D.doc, (d) => d.nom + " (" + d.esp + ")", did)}</select>`)}
+${F("Fecha", `<input type="date" name="f" min="${today()}" required value="${f}" onchange="ST.f=this.value;ST.did=this.form.did.value;render()">`)}
+${F(
+  "Horario disponible",
+  `<select name="h" required>${
+    libres(did, f)
+      .map((h) => `<option>${h}</option>`)
+      .join("") || '<option value="">Sin horarios</option>'
+  }</select>`,
+)}
+${F("Tipo de consulta", `<select name="tipo"><option>Inicial</option><option>Control</option></select>`)}<div><button>Programar</button></div></form>
+<p class="mut">Tarifas: Inicial ${S(80)} · Control ${S(50)}. Horarios cargados: ${HORAS.join(", ")}.</p></div>
+<div class="card"><h2>Citas</h2>${T(
+            ["N°", "Paciente", "Médico", "Fecha", "Hora", "Tipo", "Pago", "Estado"],
+            D.cit.map((c) => [
+              c.id,
+              esc(pac(c.pid).nom),
+              esc(doc(c.did).nom),
+              c.fecha,
+              c.hora,
+              c.tipo,
+              citPaid(c) ? B("Pagado", "ok") : B("Pendiente", "wa"),
+              eb(c.estado),
+            ]),
+          )}</div>`;
+        },
+        conf() {
+          return `<div class="card"><h2>Confirmar citas</h2><p class="mut">Solo se confirman citas con pago registrado.</p>${T(
+            ["Cita", "Pago", "Estado", ""],
+            D.cit
+              .filter((c) => c.estado == "Programada")
+              .map((c) => [
+                cname(c),
+                citPaid(c) ? B("Pagado", "ok") : B("Sin pago", "er"),
+                eb(c.estado),
+                `<button class="sm" onclick="A.conf(${c.id})">Confirmar</button>`,
+              ]),
+            "No hay citas por confirmar.",
+          )}</div>`;
+        },
+        res() {
+          return `<div class="card"><h2>Registrar resultado externo</h2><form class="g" onsubmit="A.res(event)">
+${F("Paciente", `<select name="pid" required><option value="">Seleccione…</option>${opts(D.pac, (p) => p.dni + " – " + p.nom)}</select>`)}${F("Nombre del examen", `<input name="nom" required>`)}${F("Fecha del examen", `<input type="date" name="f" required max="${today()}">`)}${F("Archivo (máx. 300 KB)", `<input type="file" name="file" required accept=".pdf,.png,.jpg,.jpeg,.txt">`)}<div><button>Registrar</button></div></form></div>
+<div class="card"><h2>Resultados registrados</h2>${T(
+            ["Paciente", "Examen", "Fecha", "Archivo"],
+            D.res.map((r) => [
+              esc(pac(r.pid).nom),
+              esc(r.nom),
+              r.f,
+              `<a href="${r.data}" download="${esc(r.fn)}">${esc(r.fn)}</a>`,
+            ]),
+          )}</div>`;
+        },
+        pag() {
+          const pc = D.cit.filter((c) => !citPaid(c)),
+            po = D.ord.filter((o) => o.estado == "Preparada"),
+            m = (id) =>
+              `<select id="m${id}" style="width:auto"><option>Efectivo</option><option>Tarjeta</option><option>Yape/Plin</option></select>`;
+          return `<div class="card"><h2>Consultas por cobrar</h2>${T(
+            ["Cita", "Monto", "Método", ""],
+            pc.map((c) => [
+              cname(c),
+              S(PRECIO[c.tipo]),
+              m("c" + c.id),
+              `<button class="sm" onclick="A.pagar('cita',${c.id})">Cobrar</button>`,
+            ]),
+            "Sin consultas pendientes.",
+          )}</div>
+<div class="card"><h2>Órdenes de medicamentos por cobrar</h2>${T(
+            ["Orden", "Paciente", "Monto", "Método", ""],
+            po.map((o) => [
+              "#" + o.id,
+              esc(pac(o.pid).nom),
+              S(o.total),
+              m("o" + o.id),
+              `<button class="sm" onclick="A.pagar('orden',${o.id})">Cobrar</button>`,
+            ]),
+            "Sin órdenes pendientes.",
+          )}</div>
+<div class="card"><h2>Pagos registrados</h2>${T(
+            ["Comprobante", "Concepto", "Paciente", "Monto", "Método", ""],
+            D.pag.map((p) => [
+              "B001-" + String(p.id).padStart(5, "0"),
+              esc(p.con),
+              esc(pac(p.pid).nom),
+              S(p.monto),
+              p.met,
+              `<button class="sm s" onclick="A.comp(${p.id})">Ver</button>`,
+            ]),
+          )}</div>`;
+        },
+        pre() {
+          const l = D.cit.filter((c) => c.estado == "Confirmada");
+          return `<div class="card"><h2>Registrar preconsulta</h2><form class="g" onsubmit="A.pre(event)">
+${F("Cita confirmada", `<select name="cid" required><option value="">Seleccione…</option>${opts(l, cname)}</select>`)}${F("Presión arterial (mmHg)", `<input name="pa" required placeholder="120/80">`)}${F("Frecuencia cardíaca (lpm)", `<input type="number" name="fc" required min="20" max="250">`)}${F("Temperatura (°C)", `<input type="number" step=".1" name="t" required min="30" max="43">`)}${F("Peso (kg)", `<input type="number" step=".1" name="pe" required min="1" max="300">`)}${F("Saturación O₂ (%)", `<input type="number" name="sp" min="50" max="100">`, 0)}
+<div style="grid-column:1/-1">${F("Observaciones", `<textarea name="ob"></textarea>`, 0)}</div><div><button>Guardar preconsulta</button></div></form>${l.length ? "" : '<p class="mut">No hay citas confirmadas pendientes de preconsulta.</p>'}</div>
+<div class="card"><h2>Preconsultas registradas</h2>${T(
+            ["Paciente", "PA", "FC", "Temp.", "Peso", "Obs."],
+            D.pre.map((p) => [
+              esc(pac(D.cit.find((c) => c.id == p.cid).pid).nom),
+              p.pa,
+              p.fc,
+              p.t,
+              p.pe,
+              esc(p.ob),
+            ]),
+          )}</div>`;
+        },
+        aten() {
+          const l = D.cit.filter((c) => c.estado == "Preconsulta" && (U.jefe || c.did == U.did)),
+            c = D.cit.find((x) => x.id == ST.cid && x.estado == "Preconsulta"),
+            p = c && D.pre.find((x) => x.cid == c.id);
+          return (
+            SUP() +
+            `<div class="card"><h2>Atención médica</h2><label>Pacientes en espera (${U.jefe ? "todos los médicos" : esc(U.n)})<select onchange="ST.cid=+this.value;render()"><option value="">Seleccione…</option>${opts(l, cname, ST.cid)}</select></label></div>` +
+            (c
+              ? `
+<div class="card"><h2>Preconsulta</h2>PA ${p.pa} · FC ${p.fc} · Temp. ${p.t} °C · Peso ${p.pe} kg · SpO₂ ${p.sp || "–"} — ${esc(p.ob) || "sin observaciones"}</div>
+<div class="card"><h2>Antecedentes</h2>${HIST(c.pid)}</div>
+<div class="card"><h2>Registro de la ${c.tipo == "Inicial" ? "consulta inicial" : "consulta de control"}</h2><form onsubmit="A.ate(event)"><input type="hidden" name="cid" value="${c.id}">
+${F("Motivo de consulta", '<textarea name="mo" required></textarea>')}${F("Diagnóstico", '<textarea name="dx" required></textarea>')}${F("Indicaciones", '<textarea name="ind" required></textarea>')}<p><button>Guardar atención</button></p></form></div>
+<div class="card"><h2>Documento médico (opcional)</h2><form class="g" onsubmit="A.dcs(event)"><input type="hidden" name="cid" value="${c.id}">
+${F("Tipo", `<select name="tipo"><option>Receta</option><option>Solicitud de exámenes</option><option>Referencia</option></select>`)}${F("Contenido (medicamentos / exámenes / destino y motivo)", '<textarea name="c" required></textarea>')}<div><button class="s">Generar documento</button></div></form>
+${T(
+  ["Documento", "Fecha", ""],
+  D.dcs
+    .filter((d) => d.cid == c.id)
+    .map((d) => [
+      d.tipo,
+      d.f,
+      `<button class="sm s" onclick="A.vdoc(${d.id})">Ver / imprimir</button>`,
+    ]),
+  "Aún no se generaron documentos.",
+)}</div>`
+              : "")
+          );
+        },
+        hist() {
+          const p = ST.pid;
+          return `<div class="card"><h2>Historia clínica</h2><label>Paciente<select onchange="ST.pid=+this.value;render()"><option value="">Seleccione…</option>${opts(D.pac, (x) => x.dni + " – " + x.nom, p)}</select></label></div>${p ? `<div class="card">${HIST(p)}</div>` : ""}`;
+        },
+        med() {
+          return `<div class="card"><h2>Consultar medicamentos</h2><input placeholder="Buscar medicamento…" value="${esc(ST.q)}" oninput="ST.q=this.value;rr('lm')"><div id="lm">${LM()}</div></div>`;
+        },
+        ord() {
+          const o = D.ord;
+          return `<div class="card"><h2>Preparar orden de medicamentos</h2><form onsubmit="A.ord(event)">${F("Paciente", `<select name="pid" required><option value="">Seleccione…</option>${opts(D.pac, (p) => p.dni + " – " + p.nom)}</select>`)}
+<div class="mut" style="margin:8px 0">Indique cantidades (0 = no incluir)</div>${T(
+            ["Medicamento", "Precio", "Stock", "Cantidad"],
+            D.med.map((m) => [
+              esc(m.nom),
+              S(m.pr),
+              m.st,
+              `<input type="number" min="0" name="m${m.id}" value="0" style="width:90px;margin:0">`,
+            ]),
+          )}<p><button>Preparar orden</button></p></form></div>
+<div class="card"><h2>Órdenes</h2>${T(
+            ["N°", "Paciente", "Detalle", "Total", "Estado", ""],
+            o.map((x) => [
+              "#" + x.id,
+              esc(pac(x.pid).nom),
+              x.it.map((i) => `${i.c}× ${esc(med(i.m).nom)}`).join("<br>"),
+              S(x.total),
+              eb(x.estado),
+              x.estado == "Entregada"
+                ? ""
+                : `<button class="sm" onclick="A.ent(${x.id})">Confirmar entrega</button>`,
+            ]),
+          )}</div>`;
+        },
+        rsol() {
+          return `<div class="card"><h2>Solicitar reposición</h2><form onsubmit="A.rsol(event)">${T(
+            ["Medicamento", "Stock", "Cantidad a solicitar"],
+            D.med.map((m) => [
+              esc(m.nom),
+              m.st <= 10 ? `<span class="low">${m.st}</span>` : m.st,
+              `<input type="number" min="0" name="m${m.id}" value="0" style="width:90px;margin:0">`,
+            ]),
+          )}<p><button>Enviar solicitud</button></p></form></div>
+<div class="card"><h2>Mis solicitudes</h2>${RT()}</div>`;
+        },
+        rrev() {
+          return `<div class="card"><h2>Solicitudes pendientes</h2>${T(
+            ["N°", "Detalle", "Proveedor", "Decisión"],
+            D.rep
+              .filter((r) => r.estado == "Pendiente")
+              .map((r) => [
+                "#" + r.id,
+                r.it.map((i) => `${i.c}× ${esc(med(i.m).nom)}`).join("<br>"),
+                `<input id="pv${r.id}" placeholder="Proveedor" style="margin:0">`,
+                `<button class="sm" onclick="A.rev(${r.id},1)">Aprobar</button> <button class="sm d" onclick="A.rev(${r.id},0)">Rechazar</button>`,
+              ]),
+            "No hay solicitudes pendientes.",
+          )}</div>
+<div class="card"><h2>Historial</h2>${RT()}</div>`;
+        },
+        rrec() {
+          return `<div class="card"><h2>Pedidos aprobados por recibir</h2>${
+            D.rep
+              .filter((r) => r.estado == "Aprobada")
+              .map(
+                (
+                  r,
+                ) => `<form class="card" onsubmit="A.rrec(event)"><input type="hidden" name="id" value="${r.id}"><b>Pedido #${r.id}</b> · Proveedor: ${esc(r.prov)}
+${T(
+  ["Medicamento", "Solicitadas", "Recibidas", "Aceptadas"],
+  r.it.map((i, k) => [
+    esc(med(i.m).nom),
+    i.c,
+    `<input type="number" min="0" name="r${k}" value="${i.c}" style="width:90px;margin:0">`,
+    `<input type="number" min="0" name="a${k}" value="${i.c}" style="width:90px;margin:0">`,
+  ]),
+)}
+${F("Observación de diferencias", '<input name="ob">', 0)}<p><button>Registrar recepción</button></p></form>`,
+              )
+              .join("") || '<p class="mut">No hay pedidos aprobados pendientes de recepción.</p>'
+          }</div><div class="card"><h2>Historial</h2>${RT()}</div>`;
+        },
+      };
+      /* REQUISITOS Y CASOS DE USO SOLO TEORIA */
+      Object.values(MENU).forEach((m) => m.splice(1, 0, ["req", "Requisitos y casos de uso", 0]));
+      const REQS = [
+        [
+          "RF-01",
+          "CU-01",
+          "Acceder al sistema",
+          "Usuario (representa a los seis roles)",
+          "Seguridad",
+          "Controlar quién entra al sistema y qué opciones puede usar según su rol.",
+          [
+            "El usuario escribe su usuario y contraseña.",
+            "El sistema valida los datos contra las cuentas de demostración.",
+            "Se muestra el menú lateral con los módulos del rol.",
+            "Al terminar, el usuario cierra sesión desde el menú.",
+          ],
+          [
+            "Si las credenciales son incorrectas se muestra un mensaje de error.",
+            "Cada rol solo ve sus propias opciones.",
+            "Es una simulación académica: no es seguridad real.",
+          ],
+        ],
+        [
+          "RF-02",
+          "CU-02",
+          "Gestionar pacientes",
+          "Recepcionista",
+          "Pacientes y citas",
+          "Mantener los datos básicos de los pacientes para poder programar y atender.",
+          [
+            "Se registra un paciente con DNI, nombre, fecha de nacimiento y teléfono.",
+            "Se busca por DNI o nombre en la lista.",
+            "Se selecciona Editar para actualizar sus datos.",
+          ],
+          [
+            "El DNI debe tener 8 dígitos y no puede repetirse.",
+            "Todos los campos son obligatorios.",
+          ],
+        ],
+        [
+          "RF-03",
+          "CU-03",
+          "Gestionar citas",
+          "Recepcionista",
+          "Pacientes y citas",
+          "Reservar la atención de un paciente con un médico en un horario libre.",
+          [
+            "Se elige paciente, médico, fecha y horario disponible.",
+            "Se indica si es consulta inicial o de control.",
+            "La cita queda en estado Programada, pendiente de pago.",
+          ],
+          [
+            "Un médico no puede tener dos citas en la misma fecha y hora.",
+            "Solo se ofrecen horarios libres y no se permiten fechas pasadas.",
+            "Las citas las registra únicamente recepción (no hay reserva por internet).",
+          ],
+        ],
+        [
+          "RF-04",
+          "CU-04",
+          "Registrar pagos",
+          "Cajero",
+          "Caja",
+          "Cobrar consultas y órdenes de medicamentos y emitir un comprobante.",
+          [
+            "El cajero ve las consultas y órdenes por cobrar.",
+            "Elige el método de pago y pulsa Cobrar.",
+            "El sistema genera un comprobante simple que se puede ver e imprimir.",
+          ],
+          [
+            "Cada consulta u orden se cobra una sola vez (evita cobros duplicados).",
+            "Tarifas: consulta inicial S/ 80 y control S/ 50.",
+            "Pagos y comprobantes simulados, sin valor tributario.",
+          ],
+        ],
+        [
+          "RF-05",
+          "CU-05",
+          "Confirmar citas",
+          "Recepcionista",
+          "Pacientes y citas",
+          "Asegurar que solo se atiendan citas que ya fueron pagadas.",
+          [
+            "Recepción revisa las citas Programadas y su estado de pago.",
+            "Pulsa Confirmar y la cita pasa a Confirmada.",
+          ],
+          ["Solo se confirman citas con pago registrado; si no, se muestra un error."],
+        ],
+        [
+          "RF-06",
+          "CU-06",
+          "Registrar preconsulta",
+          "Enfermero",
+          "Atención médica",
+          "Registrar los datos previos a la consulta médica.",
+          [
+            "El enfermero selecciona una cita Confirmada.",
+            "Registra presión arterial, frecuencia cardíaca, temperatura, peso, saturación (opcional) y observaciones.",
+            "La cita pasa a estado Preconsulta.",
+          ],
+          [
+            "Solo se puede registrar preconsulta de citas confirmadas.",
+            "Los signos vitales obligatorios deben tener valores dentro de rangos razonables.",
+          ],
+        ],
+        [
+          "RF-07",
+          "CU-07",
+          "Gestionar atención e historia clínica",
+          "Médico",
+          "Atención médica",
+          "Atender al paciente y dejar la evolución registrada en su historia clínica.",
+          [
+            "El médico elige un paciente con preconsulta realizada.",
+            "Consulta la preconsulta y los antecedentes (atenciones y resultados anteriores).",
+            "Registra motivo de consulta, diagnóstico e indicaciones.",
+            "La cita pasa a Atendida y la atención queda en la historia.",
+          ],
+          [
+            "Se usa el mismo formulario para consulta inicial y de control.",
+            "Cada médico ve solo las citas asignadas a él; el médico jefe (en el prototipo, el Dr. Jose Vigo) puede ver y atender las de todos los médicos.",
+          ],
+        ],
+        [
+          "RF-08",
+          "CU-08",
+          "Generar documentos médicos",
+          "Médico",
+          "Atención médica",
+          "Emitir documentos de apoyo durante la atención, solo cuando hagan falta.",
+          [
+            "Durante la atención, el médico elige el tipo: receta, solicitud de exámenes o referencia.",
+            "Escribe el contenido en un formulario sencillo.",
+            "El sistema muestra una vista imprimible del documento.",
+          ],
+          [
+            "Es opcional: la atención puede guardarse sin documentos.",
+            "Los documentos quedan vinculados a la atención y se consultan en la historia clínica.",
+          ],
+        ],
+        [
+          "RF-09",
+          "CU-09",
+          "Registrar resultados externos",
+          "Recepcionista (registra) y Médico (consulta)",
+          "Pacientes y citas / Atención médica",
+          "Incorporar a la historia los resultados de exámenes hechos fuera de la clínica.",
+          [
+            "Recepción elige al paciente e indica nombre y fecha del examen.",
+            "Adjunta un archivo pequeño.",
+            "El médico lo abre desde la historia clínica.",
+          ],
+          ["Los exámenes se realizan fuera de la clínica.", "El archivo no puede superar 300 KB."],
+        ],
+        [
+          "RF-10",
+          "CU-10",
+          "Consultar medicamentos",
+          "Cajero, Médico, Farmacéutico y Administrador",
+          "Farmacia y reposición",
+          "Saber qué medicamentos hay, a qué precio y con cuánto stock.",
+          [
+            "El usuario escribe parte del nombre del medicamento.",
+            "El sistema muestra precio y stock de los resultados.",
+          ],
+          [
+            "Los stocks muy bajos (10 unidades o menos) se resaltan.",
+            "Es solo consulta: no modifica datos.",
+          ],
+        ],
+        [
+          "RF-11",
+          "CU-11",
+          "Registrar entrega de medicamentos",
+          "Farmacéutico y Cajero",
+          "Farmacia y reposición / Caja",
+          "Entregar medicamentos solo cuando están pagados y hay existencias.",
+          [
+            "El farmacéutico prepara la orden con paciente, medicamentos y cantidades (estado Preparada).",
+            "El cajero registra el pago (estado Pagada).",
+            "El farmacéutico confirma la entrega (estado Entregada) y se descuenta el stock.",
+          ],
+          [
+            "Se verifica la disponibilidad al preparar y otra vez al entregar.",
+            "No se entrega sin pago ni sin existencias suficientes.",
+            "El stock se descuenta una sola vez: una orden entregada no puede entregarse de nuevo.",
+          ],
+        ],
+        [
+          "RF-12",
+          "CU-12",
+          "Solicitar reposición",
+          "Farmacéutico",
+          "Farmacia y reposición",
+          "Pedir al administrador que autorice la compra de medicamentos con poco stock.",
+          [
+            "El farmacéutico revisa el stock.",
+            "Indica la cantidad necesaria de cada medicamento.",
+            "La solicitud queda en estado Pendiente.",
+          ],
+          ["Debe incluir al menos un medicamento con cantidad mayor que cero."],
+        ],
+        [
+          "RF-13",
+          "CU-13",
+          "Revisar solicitud de reposición",
+          "Administrador",
+          "Farmacia y reposición",
+          "Decidir si se autoriza el pedido y a qué proveedor se encarga.",
+          [
+            "El administrador revisa las solicitudes Pendientes.",
+            "Aprueba indicando el proveedor, o rechaza la solicitud.",
+            "La solicitud pasa a Aprobada o Rechazada.",
+          ],
+          [
+            "Para aprobar es obligatorio registrar el proveedor.",
+            "El sistema registra el pedido, pero no paga al proveedor: ese pago se gestiona por separado.",
+          ],
+        ],
+        [
+          "RF-14",
+          "CU-14",
+          "Registrar recepción",
+          "Farmacéutico",
+          "Farmacia y reposición",
+          "Registrar lo que realmente llegó de un pedido aprobado y actualizar el stock.",
+          [
+            "El farmacéutico abre un pedido Aprobado.",
+            "Anota las cantidades recibidas y las aceptadas, y una observación sobre las diferencias.",
+            "El stock aumenta solo con las unidades aceptadas y el pedido pasa a Recibida.",
+          ],
+          [
+            "Las unidades aceptadas no pueden superar a las recibidas.",
+            "Una recepción ya registrada no puede repetirse.",
+          ],
+        ],
+      ];
+      VW.req = () =>
+        `<div class="card"><h2>Cómo leer esta ventana</h2>
+  <p>Resumen teórico de los 14 requisitos funcionales (RF) y de su caso de uso (CU) asociado. En el sistema, <b>Usuario</b> es el actor abstracto que representa a los seis roles; no es una cuenta adicional.</p>
+  <p>Los módulos son Seguridad, Pacientes y citas, Caja, Atención médica y Farmacia y reposición. Todos los roles trabajan sobre los mismos datos guardados en este navegador, por eso lo que registra un rol aparece de inmediato en los demás.</p>
+  <p class="mut">Alcance: pagos y comprobantes simulados, citas registradas por recepción, exámenes realizados fuera de la clínica y sin pago al proveedor.</p></div>
+  <div class="card"><h2>Recorridos que conectan los requisitos</h2><ol>
+  <li><b>Atención:</b> RF-02 paciente, RF-03 cita, RF-04 pago, RF-05 confirmación, RF-06 preconsulta, RF-07 atención y RF-08 documento opcional.</li>
+  <li><b>Medicamentos:</b> RF-11 orden, pago (RF-04), entrega y actualización de stock.</li>
+  <li><b>Reposición:</b> RF-12 solicitud, RF-13 aprobación y RF-14 recepción con actualización de stock.</li></ol></div>` +
+        REQS.map(
+          (r) => `<details class="card"><summary>${r[0]} / ${r[1]} · ${r[2]}</summary>
+    <p><b>Actor:</b> ${r[3]}<br><b>Módulo:</b> ${r[4]}</p><p><b>Objetivo:</b> ${r[5]}</p>
+    <p><b>Flujo principal</b></p><ol>${r[6].map((x) => `<li>${x}</li>`).join("")}</ol>
+    <p><b>Reglas</b></p><ul>${r[7].map((x) => `<li>${x}</li>`).join("")}</ul></details>`,
+        ).join("");
+
+      /* SUPERVISION DEL ADMINISTRADOR */
+      const REQROL = {
+        Recepcionista: "RF-02, RF-03, RF-05, RF-09",
+        Cajero: "RF-04, RF-10, RF-11 (cobro)",
+        Enfermero: "RF-06",
+        Médico: "RF-07, RF-08, RF-09 (consulta), RF-10",
+        Farmacéutico: "RF-10, RF-11, RF-12, RF-14",
+        Administrador: "RF-13, RF-10",
+      };
+      const KP = (a) =>
+        `<div class="kpi">${a.map((x) => `<div><b>${x[0]}</b>${x[1]}</div>`).join("")}</div>`;
+      VW.sup = () => {
+        const n = (a, f) => a.filter(f).length,
+          c = (e) => n(D.cit, (x) => x.estado == e),
+          o = (e) => n(D.ord, (x) => x.estado == e),
+          p = (e) => n(D.rep, (x) => x.estado == e),
+          sinPago = n(D.cit, (x) => x.estado == "Programada" && !citPaid(x)),
+          pagadas = n(D.cit, (x) => x.estado == "Programada" && citPaid(x)),
+          bajos = D.med.filter((m) => m.st <= 10),
+          pend = [
+            ["Caja", "Consultas sin pago", sinPago],
+            ["Caja", "Órdenes de medicamentos por cobrar", o("Preparada")],
+            ["Recepción", "Citas pagadas por confirmar", pagadas],
+            ["Enfermería", "Citas confirmadas sin preconsulta", c("Confirmada")],
+            ["Médicos", "Pacientes con preconsulta esperando atención", c("Preconsulta")],
+            ["Farmacia", "Órdenes pagadas por entregar", o("Pagada")],
+            ["Farmacia", "Pedidos aprobados por recibir", p("Aprobada")],
+            ["Administración", "Solicitudes de reposición por revisar", p("Pendiente")],
+            ["Farmacia", "Medicamentos con stock bajo (10 o menos)", bajos.length],
+          ].filter((x) => x[2] > 0),
+          gap = '<div style="margin-top:12px"></div>';
+        return `<div class="card"><h2>Pendientes por área</h2>${T(
+          ["Área", "Pendiente", "Cantidad"],
+          pend.map((x) => [x[0], x[1], `<b>${x[2]}</b>`]),
+          "Todo al día: no hay pendientes.",
+        )}</div>
+<div class="card"><h2>Pacientes y citas (Recepción)</h2>${KP([
+          [D.pac.length, "Pacientes"],
+          [c("Programada"), "Programadas"],
+          [c("Confirmada"), "Confirmadas"],
+          [c("Preconsulta"), "En preconsulta"],
+          [c("Atendida"), "Atendidas"],
+          [D.res.length, "Resultados externos"],
+        ])}</div>
+<div class="card"><h2>Caja</h2>${KP([
+          [D.pag.length, "Pagos registrados"],
+          [S(D.pag.reduce((s, x) => s + x.monto, 0)), "Recaudado (simulado)"],
+          [sinPago + o("Preparada"), "Conceptos por cobrar"],
+        ])}</div>
+<div class="card"><h2>Atención médica</h2>${KP([
+          [D.pre.length, "Preconsultas"],
+          [D.ate.length, "Atenciones"],
+          [D.dcs.length, "Documentos médicos"],
+        ])}${gap}${T(
+          ["Médico", "Especialidad", "Programadas", "Confirmadas", "En espera", "Atendidas"],
+          D.doc.map((d) => {
+            const k = (e) => D.cit.filter((x) => x.did == d.id && x.estado == e).length;
+            return [
+              esc(d.nom),
+              esc(d.esp),
+              k("Programada"),
+              k("Confirmada"),
+              k("Preconsulta"),
+              k("Atendida"),
+            ];
+          }),
+        )}</div>
+<div class="card"><h2>Farmacia y reposición</h2>${KP([
+          [o("Preparada"), "Órdenes preparadas"],
+          [o("Pagada"), "Órdenes pagadas"],
+          [o("Entregada"), "Órdenes entregadas"],
+          [p("Pendiente"), "Reposiciones pendientes"],
+          [p("Aprobada"), "Aprobadas"],
+          [p("Recibida"), "Recibidas"],
+        ])}${gap}${T(
+          ["Medicamento", "Stock", "Precio"],
+          bajos.map((m) => [esc(m.nom), `<span class="low">${m.st}</span>`, S(m.pr)]),
+          "No hay medicamentos con stock bajo.",
+        )}</div>`;
+      };
+      VW.roles = () => {
+        const L = D.log || [];
+        return `<div class="card"><h2>Roles, responsables y funciones</h2><p class="mut">Seis roles operan sobre los mismos datos. Las cifras salen de la bitácora de este navegador.</p>${T(
+          [
+            "Rol",
+            "Responsable",
+            "Usuario",
+            "Funciones (menú)",
+            "Requisitos",
+            "Acciones correctas",
+            "Rechazadas",
+            "Última actividad",
+          ],
+          USERS.map((u) => {
+            const l = L.filter((x) => x.u == u.n),
+              z = l[l.length - 1];
+            return [
+              `<b>${esc(u.t || u.r)}</b>`,
+              esc(u.n),
+              `<code>${u.u}</code>`,
+              MENU[u.r]
+                .filter((x) => x[2] != 0)
+                .map((x) => x[1])
+                .join(", ") || "Solo consulta",
+              REQROL[u.r],
+              l.filter((x) => x.ok).length,
+              l.filter((x) => !x.ok).length
+                ? `<span class="low">${l.filter((x) => !x.ok).length}</span>`
+                : 0,
+              z
+                ? `${esc(z.f)}<br><span class="mut">${esc(z.x)}</span>`
+                : '<span class="mut">Sin actividad</span>',
+            ];
+          }),
+        )}<p class="mut">RF-01 (acceder al sistema) aplica a los seis roles.</p></div>`;
+      };
+      VW.bit = () => {
+        const fr = ST.fr || "",
+          L = (D.log || [])
+            .filter((x) => !fr || x.r == fr)
+            .slice(-100)
+            .reverse();
+        return `<div class="card"><h2>Bitácora de actividad</h2><p class="mut">Muestra las últimas 100 acciones. Las rechazadas son intentos que el sistema bloqueó por una regla (por ejemplo, confirmar sin pago).</p>
+<div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap"><label style="flex:1;min-width:200px">Filtrar por rol<select onchange="ST.fr=this.value;render()"><option value="">Todos</option>${USERS.map((u) => `<option ${fr == (u.t || u.r) ? "selected" : ""}>${esc(u.t || u.r)}</option>`).join("")}</select></label><button class="s d" onclick="A.clog()">Vaciar bitácora</button></div>
+<div style="margin-top:12px"></div>${T(
+          ["Fecha", "Rol", "Usuario", "Acción", "Resultado"],
+          L.map((x) => [
+            esc(x.f),
+            esc(x.r),
+            esc(x.u),
+            esc(x.x),
+            x.ok ? B("Correcto", "ok") : B("Rechazado", "er"),
+          ]),
+          "Aún no hay actividad registrada.",
+        )}</div>`;
+      };
+      /* TABLAS REUTILIZABLES */
+      const SUP = () =>
+        U.jefe
+          ? `<div class="card"><h2>Supervisión de médicos</h2><p class="mut">Como jefe de médicos puede ver la carga de cada médico y atender cualquier cita en espera.</p>${T(
+              ["Médico", "Especialidad", "Programadas", "Confirmadas", "En espera", "Atendidas"],
+              D.doc.map((d) => {
+                const n = (e) => D.cit.filter((c) => c.did == d.id && c.estado == e).length;
+                return [
+                  esc(d.nom),
+                  esc(d.esp),
+                  n("Programada"),
+                  n("Confirmada"),
+                  n("Preconsulta"),
+                  n("Atendida"),
+                ];
+              }),
+            )}</div>`
+          : "";
+      const RT = () =>
+        T(
+          ["N°", "Detalle", "Estado", "Proveedor", "Recepción"],
+          D.rep.map((r) => [
+            "#" + r.id,
+            r.it.map((i) => `${i.c}× ${esc(med(i.m).nom)}`).join("<br>"),
+            eb(r.estado),
+            esc(r.prov || "–"),
+            r.rec
+              ? r.rec.map((x) => `${esc(med(x.m).nom)}: rec. ${x.r}, acept. ${x.a}`).join("<br>") +
+                (r.ob ? "<br><i>" + esc(r.ob) + "</i>" : "")
+              : "–",
+          ]),
+        );
+      const LP = () => {
+        const q = (ST.q || "").toLowerCase();
+        return T(
+          ["DNI", "Nombre", "Nacimiento", "Teléfono", ""],
+          D.pac
+            .filter((p) => (p.dni + p.nom).toLowerCase().includes(q))
+            .map((p) => [
+              p.dni,
+              esc(p.nom),
+              p.fn,
+              p.tel,
+              `<button class="sm s" onclick="ST.ed=${p.id};render();scrollTo(0,0)">Editar</button>`,
+            ]),
+        );
+      };
+      const LM = () => {
+        const q = (ST.q || "").toLowerCase();
+        return T(
+          ["Medicamento", "Precio", "Stock"],
+          D.med
+            .filter((m) => m.nom.toLowerCase().includes(q))
+            .map((m) => [
+              esc(m.nom),
+              S(m.pr),
+              m.st <= 10 ? `<span class="low">${m.st} (bajo)</span>` : m.st,
+            ]),
+        );
+      };
+      const rr = (id) => {
+        $(id).innerHTML = id == "lp" ? LP() : LM();
+      };
+      const HIST = (pid) => {
+        const a = D.ate.filter((x) => x.pid == pid).reverse(),
+          r = D.res.filter((x) => x.pid == pid);
+        return (
+          `<b>${esc(pac(pid).nom)}</b>` +
+          (a.length
+            ? a
+                .map(
+                  (x) =>
+                    `<div class="card" style="margin:8px 0"><b>${x.f}</b> · ${esc(doc(x.did).nom)} · ${x.tipo}<br>Motivo: ${esc(x.mo)}<br>Diagnóstico: ${esc(x.dx)}<br>Indicaciones: ${esc(x.ind)}<br>${D.dcs
+                      .filter((d) => d.cid == x.cid)
+                      .map(
+                        (d) => `<button class="sm s" onclick="A.vdoc(${d.id})">${d.tipo}</button>`,
+                      )
+                      .join(" ")}</div>`,
+                )
+                .join("")
+            : '<p class="mut">Sin atenciones previas.</p>') +
+          `<h2>Resultados externos</h2>` +
+          (r.length
+            ? r
+                .map(
+                  (x) =>
+                    `<div>${esc(x.nom)} (${x.f}) – <a href="${x.data}" download="${esc(x.fn)}">${esc(x.fn)}</a></div>`,
+                )
+                .join("")
+            : '<p class="mut">Sin resultados registrados.</p>')
+        );
+      };
+
+      /* ACCIONES Y REGLAS DE NEGOCIO */
+      const A = {
+        login(e) {
+          const d = fd(e),
+            u = USERS.find((x) => x.u == d.u.trim() && x.p == d.p);
+          if (!u) return toast("Usuario o contraseña incorrectos", "err");
+          U = u;
+          V = "ini";
+          ST = {};
+          sessionStorage.setItem("csv_u", JSON.stringify(u));
+          lg("Inició sesión");
+          save();
+          render();
+        },
+        fill(u) {
+          const x = USERS.find((y) => y.u == u);
+          document.querySelector("input[name=u]").value = x.u;
+          document.querySelector("input[name=p]").value = x.p;
+          toast("Datos de " + x.r + " cargados. Pulse Iniciar sesión.");
+        },
+        clog() {
+          if (confirm("¿Vaciar la bitácora de actividad?")) {
+            D.log = [];
+            save();
+            render();
+          }
+        },
+        logout() {
+          lg("Cerró sesión");
+          save();
+          U = null;
+          sessionStorage.removeItem("csv_u");
+          render();
+        },
+        reset() {
+          if (confirm("¿Restablecer todos los datos de demostración?")) {
+            D = seed();
+            save();
+            ST = {};
+            render();
+            toast("Datos restablecidos");
+          }
+        },
+        pac(e) {
+          const d = fd(e),
+            dup = D.pac.find((p) => p.dni == d.dni && p.id != d.id);
+          if (dup) return toast("Ya existe un paciente con ese DNI: " + dup.nom, "err");
+          if (d.id) {
+            Object.assign(pac(d.id), { dni: d.dni, nom: d.nom.trim(), fn: d.fn, tel: d.tel });
+            toast("Paciente actualizado");
+          } else {
+            D.pac.push({ id: nid(), dni: d.dni, nom: d.nom.trim(), fn: d.fn, tel: d.tel });
+            toast("Paciente registrado");
+          }
+          ST.ed = 0;
+          save();
+          render();
+        },
+        cit(e) {
+          const d = fd(e);
+          if (!d.h) return toast("Seleccione un horario disponible", "err");
+          if (D.cit.some((c) => c.did == d.did && c.fecha == d.f && c.hora == d.h))
+            return toast("Ese médico ya tiene una cita en ese horario", "err");
+          D.cit.push({
+            id: nid(),
+            pid: +d.pid,
+            did: +d.did,
+            fecha: d.f,
+            hora: d.h,
+            tipo: d.tipo,
+            estado: "Programada",
+          });
+          save();
+          toast("Cita programada. Pendiente de pago.");
+          render();
+        },
+        pagar(t, id) {
+          const c = t == "cita" ? D.cit.find((x) => x.id == id) : D.ord.find((x) => x.id == id);
+          if (D.pag.some((p) => p.t == t && p.ref == id))
+            return toast("Este concepto ya fue cobrado", "err");
+          const met = $("m" + (t == "cita" ? "c" : "o") + id).value,
+            monto = t == "cita" ? PRECIO[c.tipo] : c.total,
+            p = {
+              id: nid(),
+              t,
+              ref: id,
+              pid: c.pid,
+              monto,
+              met,
+              f: today(),
+              con:
+                t == "cita" ? "Consulta " + c.tipo.toLowerCase() : "Orden de medicamentos #" + id,
+            };
+          D.pag.push(p);
+          if (t == "orden") c.estado = "Pagada";
+          save();
+          render();
+          toast("Pago registrado");
+          A.comp(p.id);
+        },
+        comp(id) {
+          const p = D.pag.find((x) => x.id == id);
+          show(
+            head("Comprobante de pago simulado") +
+              `<b>N° B001-${String(p.id).padStart(5, "0")}</b><br>Fecha: ${p.f}<br>Paciente: ${esc(pac(p.pid).nom)}<br>Concepto: ${esc(p.con)}<br>Método: ${p.met}<br><h2>Total: ${S(p.monto)}</h2><div class="mut">Documento académico sin valor tributario.</div>`,
+          );
+        },
+        conf(id) {
+          const c = D.cit.find((x) => x.id == id);
+          if (!citPaid(c))
+            return toast("No se puede confirmar: la cita no tiene pago registrado", "err");
+          c.estado = "Confirmada";
+          save();
+          toast("Cita confirmada");
+          render();
+        },
+        async res(e) {
+          e.preventDefault();
+          const d = new FormData(e.target),
+            f = d.get("file");
+          if (f.size > 307200) return toast("El archivo supera 300 KB", "err");
+          const data = await new Promise((r) => {
+            const x = new FileReader();
+            x.onload = () => r(x.result);
+            x.readAsDataURL(f);
+          });
+          D.res.push({
+            id: nid(),
+            pid: +d.get("pid"),
+            nom: d.get("nom"),
+            f: d.get("f"),
+            fn: f.name,
+            data,
+          });
+          save();
+          toast("Resultado registrado");
+          render();
+        },
+        pre(e) {
+          const d = fd(e),
+            c = D.cit.find((x) => x.id == d.cid);
+          if (c.estado != "Confirmada") return toast("La cita no está confirmada", "err");
+          D.pre.push({ cid: c.id, pa: d.pa, fc: d.fc, t: d.t, pe: d.pe, sp: d.sp, ob: d.ob });
+          c.estado = "Preconsulta";
+          save();
+          toast("Preconsulta registrada");
+          render();
+        },
+        ate(e) {
+          const d = fd(e),
+            c = D.cit.find((x) => x.id == d.cid);
+          if (c.estado != "Preconsulta") return toast("La cita ya fue atendida", "err");
+          D.ate.push({
+            id: nid(),
+            cid: c.id,
+            pid: c.pid,
+            did: c.did,
+            tipo: c.tipo,
+            f: today(),
+            mo: d.mo,
+            dx: d.dx,
+            ind: d.ind,
+          });
+          c.estado = "Atendida";
+          ST = {};
+          save();
+          toast("Atención guardada en la historia clínica");
+          render();
+        },
+        dcs(e) {
+          const d = fd(e);
+          const x = { id: nid(), cid: +d.cid, tipo: d.tipo, c: d.c, f: today() };
+          D.dcs.push(x);
+          save();
+          toast("Documento generado");
+          render();
+          A.vdoc(x.id);
+        },
+        vdoc(id) {
+          const d = D.dcs.find((x) => x.id == id),
+            c = D.cit.find((x) => x.id == d.cid);
+          show(
+            head(d.tipo) +
+              `Fecha: ${d.f}<br>Paciente: ${esc(pac(c.pid).nom)}<br>Médico: ${esc(doc(c.did).nom)}<pre>${esc(d.c)}</pre>`,
+          );
+        },
+        ord(e) {
+          const d = fd(e),
+            it = D.med.map((m) => ({ m: m.id, c: +d["m" + m.id] || 0 })).filter((i) => i.c > 0);
+          if (!it.length) return toast("Agregue al menos un medicamento", "err");
+          const bad = it.find((i) => i.c > med(i.m).st);
+          if (bad)
+            return toast(
+              "Stock insuficiente de " + med(bad.m).nom + " (disponible: " + med(bad.m).st + ")",
+              "err",
+            );
+          D.ord.push({
+            id: nid(),
+            pid: +d.pid,
+            it,
+            total: it.reduce((s, i) => s + i.c * med(i.m).pr, 0),
+            estado: "Preparada",
+          });
+          save();
+          toast("Orden preparada. Pendiente de pago en caja.");
+          render();
+        },
+        ent(id) {
+          const o = D.ord.find((x) => x.id == id);
+          if (o.estado == "Entregada") return toast("La orden ya fue entregada", "err");
+          if (o.estado != "Pagada" || !D.pag.some((p) => p.t == "orden" && p.ref == id))
+            return toast("No se puede entregar: la orden no tiene pago registrado", "err");
+          const bad = o.it.find((i) => i.c > med(i.m).st);
+          if (bad) return toast("Stock insuficiente de " + med(bad.m).nom, "err");
+          o.it.forEach((i) => (med(i.m).st -= i.c));
+          o.estado = "Entregada";
+          save();
+          toast("Entrega registrada y stock actualizado");
+          render();
+        },
+        rsol(e) {
+          const d = fd(e),
+            it = D.med.map((m) => ({ m: m.id, c: +d["m" + m.id] || 0 })).filter((i) => i.c > 0);
+          if (!it.length) return toast("Seleccione al menos un medicamento", "err");
+          D.rep.push({ id: nid(), it, estado: "Pendiente" });
+          save();
+          toast("Solicitud enviada al administrador");
+          render();
+        },
+        rev(id, ok) {
+          const r = D.rep.find((x) => x.id == id),
+            pv = $("pv" + id).value.trim();
+          if (r.estado != "Pendiente") return;
+          if (ok && !pv) return toast("Indique el proveedor para aprobar", "err");
+          r.estado = ok ? "Aprobada" : "Rechazada";
+          if (ok) r.prov = pv;
+          save();
+          toast(ok ? "Solicitud aprobada" : "Solicitud rechazada");
+          render();
+        },
+        rrec(e) {
+          const d = fd(e),
+            r = D.rep.find((x) => x.id == d.id);
+          if (r.estado != "Aprobada") return toast("Esta recepción ya fue registrada", "err");
+          const rec = r.it.map((i, k) => ({ m: i.m, s: i.c, r: +d["r" + k], a: +d["a" + k] }));
+          if (rec.some((x) => x.a > x.r || x.r < 0 || x.a < 0))
+            return toast("Las unidades aceptadas no pueden superar las recibidas", "err");
+          rec.forEach((x) => (med(x.m).st += x.a));
+          r.rec = rec;
+          r.ob = d.ob;
+          r.estado = "Recibida";
+          save();
+          toast("Recepción registrada. Stock aumentado con unidades aceptadas");
+          render();
+        },
+      };
+
+      /* APARIENCIA DE LA VISTA */
+      const FUENTES = {
+        Estándar: '"Segoe UI", system-ui, sans-serif',
+        Verdana: "Verdana, Geneva, sans-serif",
+        Georgia: 'Georgia, "Times New Roman", serif',
+        Monoespaciada: 'Consolas, "Courier New", monospace',
+      };
+      const TAMS = [
+        ["Pequeña", 13],
+        ["Normal", 15],
+        ["Grande", 17],
+        ["Muy grande", 20],
+      ];
+      const TEMAS = [
+        ["claro", "Claro"],
+        ["oscuro", "Oscuro"],
+        ["contraste", "Alto contraste"],
+        ["calido", "Cálido"],
+      ];
+      const COLORES = [
+        ["Verde azulado", "#0f766e"],
+        ["Azul", "#1d4ed8"],
+        ["Violeta", "#6d28d9"],
+        ["Naranja", "#c2410c"],
+        ["Rosa", "#be185d"],
+      ];
+      const CFG0 = { fs: 15, ff: "Estándar", tema: "claro", pri: "" };
+      let CFG = { ...CFG0 };
+      try {
+        Object.assign(CFG, JSON.parse(localStorage.getItem("csv_cfg")));
+      } catch (e) {}
+      function applyCfg() {
+        const h = document.documentElement;
+        h.dataset.tema = CFG.tema;
+        h.style.setProperty("--fs", CFG.fs + "px");
+        h.style.setProperty("--ff", FUENTES[CFG.ff] || FUENTES["Estándar"]);
+        if (CFG.pri) h.style.setProperty("--pri", CFG.pri);
+        else h.style.removeProperty("--pri");
+        try {
+          localStorage.setItem("csv_cfg", JSON.stringify(CFG));
+        } catch (e) {}
+      }
+      function setCfg(k, v) {
+        CFG[k] = v;
+        applyCfg();
+        openCfg();
+      }
+      function resetCfg() {
+        CFG = { ...CFG0 };
+        applyCfg();
+        openCfg();
+      }
+      function panel(html) {
+        $("modal").innerHTML =
+          `<div class="paper">${html}<p class="noprint" style="margin-top:14px;text-align:right"><button class="s" onclick="closeM()">Cerrar</button></p></div>`;
+        $("modal").classList.add("on");
+      }
+      function openCfg() {
+        const op = (k, v, txt) =>
+          `<button class="sm ${CFG[k] == v ? "" : "s"}" onclick="setCfg('${k}',${typeof v == "number" ? v : `'${v}'`})">${txt}</button>`;
+        panel(
+          head("Apariencia de la vista") +
+            `<p class="mut">Los cambios se aplican al instante y se guardan en este navegador.</p>
+<p><b>Tamaño de letra</b><br>${TAMS.map((x) => op("fs", x[1], x[0])).join(" ")}</p>
+<p><b>Tipo de letra</b><br>${Object.keys(FUENTES)
+              .map((n) => op("ff", n, n))
+              .join(" ")}</p>
+<p><b>Tema</b><br>${TEMAS.map((x) => op("tema", x[0], x[1])).join(" ")}</p>
+<p><b>Color principal</b><br>${COLORES.map((c) => `<button class="sw" title="${c[0]}" aria-label="${c[0]}" style="background:${c[1]};${CFG.pri == c[1] ? "outline:3px solid var(--ink);outline-offset:2px" : ""}" onclick="setCfg('pri','${c[1]}')"></button>`).join(" ")} ${op("pri", "", "Del tema")}</p>
+<p><button class="s" onclick="resetCfg()">Restablecer apariencia</button></p>`,
+        );
+      }
+
+      /* AYUDA TIPO MANUAL DE USUARIO */
+      const norm = (s) =>
+        String(s)
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      const ROLES = {
+        Recepcionista: "Pacientes, Citas, Confirmar citas y Resultados externos.",
+        Cajero: "Registrar pagos y Consultar medicamentos.",
+        Enfermero: "Preconsulta.",
+        Médico: "Atención, Historia clínica y Consultar medicamentos.",
+        Farmacéutico:
+          "Consultar medicamentos, Órdenes y entrega, Solicitar reposición y Registrar recepción.",
+        Administrador:
+          "Panel de supervisión, Roles y funciones, Bitácora de actividad, Revisar reposiciones y Consultar medicamentos.",
+      };
+      const rolTxt = () =>
+        U
+          ? `Su rol es <b>${esc(U.t || U.r)}</b>. En el menú lateral tiene: ${ROLES[U.r]} Todos los roles ven además Inicio y la ventana teórica Requisitos y casos de uso.`
+          : "Inicie sesión para ver las opciones de su rol. Hay seis roles: " +
+            Object.keys(ROLES).join(", ") +
+            ".";
+      const AYUDA = [
+        {
+          t: "¿Qué puedo hacer con mi rol?",
+          c: 1,
+          k: ["mi rol", "que puedo", "permisos", "opciones", "menu", "modulos"],
+          a: rolTxt,
+        },
+        {
+          t: "Iniciar y cerrar sesión",
+          c: 1,
+          k: [
+            "sesion",
+            "login",
+            "entrar",
+            "ingresar",
+            "usuario",
+            "contrasena",
+            "cuenta",
+            "salir",
+            "cerrar",
+          ],
+          a: "Ingrese usuario y contraseña, o pulse <b>Usar</b> junto a una cuenta de prueba para cargar los datos y luego <b>Iniciar sesión</b>. Para salir use <b>Cerrar sesión</b> en el menú lateral.",
+        },
+        {
+          t: "Recorridos de demostración",
+          c: 1,
+          k: [
+            "recorrido",
+            "flujo",
+            "empezar",
+            "orden",
+            "pasos",
+            "demostracion",
+            "demo",
+            "proceso",
+            "por donde",
+          ],
+          a: "<b>Atención:</b> Recepción registra paciente y cita → Cajero cobra → Recepción confirma → Enfermero registra preconsulta → Médico atiende (documento opcional).<br><b>Medicamentos:</b> Farmacéutico prepara la orden → Cajero cobra → Farmacéutico entrega.<br><b>Reposición:</b> Farmacéutico solicita → Administrador aprueba con proveedor → Farmacéutico registra la recepción.<br>En cada paso entre con la cuenta del rol que corresponde.",
+        },
+        {
+          t: "Estados de citas, órdenes y reposiciones",
+          k: ["estado", "estados", "significa", "etiqueta"],
+          a: "<b>Citas:</b> Programada → Confirmada → Preconsulta → Atendida.<br><b>Órdenes:</b> Preparada → Pagada → Entregada.<br><b>Reposiciones:</b> Pendiente → Aprobada o Rechazada → Recibida.",
+        },
+        {
+          t: "Cambiar letras y colores",
+          c: 1,
+          k: [
+            "letra",
+            "color",
+            "tema",
+            "oscuro",
+            "tamano",
+            "fuente",
+            "apariencia",
+            "vista",
+            "contraste",
+          ],
+          a: "Pulse el botón <b>Apariencia</b> (abajo a la derecha). Puede elegir tamaño y tipo de letra, tema (claro, oscuro, alto contraste o cálido) y color principal. Se aplica al instante y se guarda en este navegador.",
+        },
+        {
+          t: "Dónde se guardan los datos",
+          k: ["dato", "guard", "navegador", "perder", "borrar", "reiniciar", "restablecer", "demo"],
+          a: "Los datos se guardan en este navegador y se comparten entre todos los roles. Para borrar todo y volver a los datos iniciales use <b>Restablecer datos demo</b> en el menú lateral.",
+        },
+        {
+          r: "Recepcionista",
+          t: "Registrar y buscar pacientes",
+          k: ["paciente", "registrar", "dni", "buscar", "editar", "actualizar"],
+          a: "Menú <b>Pacientes</b>: complete DNI (8 dígitos, no repetido), nombre, fecha de nacimiento y teléfono, y pulse <b>Registrar</b>. Para buscar escriba el DNI o nombre; con <b>Editar</b> actualiza sus datos.",
+        },
+        {
+          r: "Recepcionista",
+          t: "Programar una cita",
+          k: ["cita", "agendar", "programar", "horario", "reservar", "fecha"],
+          a: "Menú <b>Citas</b>: elija paciente, médico y fecha, luego un horario disponible y el tipo (Inicial o Control). La cita queda <b>Programada</b>, pendiente de pago. Un médico no puede tener dos citas a la misma hora.",
+        },
+        {
+          r: "Recepcionista",
+          t: "Confirmar una cita",
+          k: ["confirmar", "confirmacion"],
+          a: "Menú <b>Confirmar citas</b>: pulse Confirmar en una cita Programada. Solo se permite si el cajero ya registró el pago.",
+        },
+        {
+          r: "Recepcionista",
+          t: "Registrar resultados externos",
+          k: ["resultado", "examen", "archivo", "adjuntar", "laboratorio"],
+          a: "Menú <b>Resultados externos</b>: elija paciente, escriba nombre y fecha del examen y adjunte un archivo (PDF, imagen o texto, máx. 300 KB). El médico lo ve en la Historia clínica.",
+        },
+        {
+          r: "Cajero",
+          t: "Cobrar y emitir comprobantes",
+          k: ["pag", "cobr", "comprobante", "boleta", "imprimir", "caja", "cajero"],
+          a: "Menú <b>Registrar pagos</b>: en las consultas u órdenes por cobrar elija el método y pulse <b>Cobrar</b>. Se abre un comprobante simulado con botón Imprimir. Cada concepto se cobra una sola vez. Tarifas: Inicial S/ 80, Control S/ 50. En <b>Pagos registrados</b> puede ver de nuevo cualquier comprobante.",
+        },
+        {
+          r: "Enfermero",
+          t: "Registrar la preconsulta",
+          k: ["preconsulta", "signos", "vitales", "presion", "temperatura", "peso", "enfermero"],
+          a: "Menú <b>Preconsulta</b>: seleccione una cita Confirmada y registre presión arterial, frecuencia cardíaca, temperatura, peso, saturación (opcional) y observaciones. La cita pasa a estado Preconsulta.",
+        },
+        {
+          r: "Médico",
+          t: "Atender y ver la historia clínica",
+          k: [
+            "atencion",
+            "atender",
+            "historia",
+            "diagnostico",
+            "indicaciones",
+            "antecedentes",
+            "consulta",
+            "medico",
+          ],
+          a: "Menú <b>Atención</b>: elija al paciente en espera, revise preconsulta y antecedentes, y complete motivo, diagnóstico e indicaciones con <b>Guardar atención</b> (mismo formulario para consulta inicial y de control). Luego la atención queda en <b>Historia clínica</b>.",
+        },
+        {
+          r: "Médico",
+          t: "Generar receta, exámenes o referencia",
+          k: ["receta", "documento", "referencia", "solicitud de examen", "orden de examen"],
+          a: "En <b>Atención</b> use la tarjeta Documento médico (opcional): elija Receta, Solicitud de exámenes o Referencia, escriba el contenido y pulse Generar documento; se abre una vista imprimible. Hágalo <b>antes</b> de Guardar atención; después puede reabrirlo desde la Historia clínica.",
+        },
+        {
+          r: "Médico",
+          t: "Jefe de médicos",
+          k: ["jefe", "supervision", "supervisar", "todos los medicos"],
+          a: "El jefe de médicos (Dr. Jose Vigo) ve y atiende las citas en espera de todos los médicos y tiene la tabla <b>Supervisión de médicos</b> al inicio de Atención. Los demás médicos solo ven sus propias citas.",
+        },
+        {
+          t: "Consultar medicamentos",
+          k: ["medicamento", "stock", "precio", "farmacia", "inventario"],
+          a: "Menú <b>Consultar medicamentos</b> (Cajero, Médico, Farmacéutico y Administrador): escriba parte del nombre para ver precio y stock. En rojo aparecen los stocks de 10 unidades o menos.",
+        },
+        {
+          r: "Farmacéutico",
+          t: "Preparar una orden y entregar",
+          k: ["orden", "ordenes", "entreg", "dispensar", "preparar", "farmaceutico"],
+          a: "Menú <b>Órdenes y entrega</b>: elija paciente, indique cantidades y pulse <b>Preparar orden</b> (no permite más que el stock). El cajero la cobra y luego usted pulsa <b>Confirmar entrega</b>, que descuenta el stock una sola vez.",
+        },
+        {
+          r: "Farmacéutico",
+          t: "Solicitar reposición",
+          k: ["reposicion", "repon", "solicitar", "pedido", "stock bajo"],
+          a: "Menú <b>Solicitar reposición</b>: indique la cantidad de cada medicamento que necesita (los de poco stock aparecen en rojo) y pulse <b>Enviar solicitud</b>. Queda Pendiente hasta que el administrador la revise.",
+        },
+        {
+          r: "Administrador",
+          t: "Aprobar o rechazar reposiciones",
+          k: ["aprobar", "rechazar", "proveedor", "administrador", "revisar"],
+          a: "Menú <b>Revisar reposiciones</b>: en cada solicitud Pendiente escriba el proveedor y pulse <b>Aprobar</b> (el proveedor es obligatorio), o pulse <b>Rechazar</b>. El sistema no paga al proveedor.",
+        },
+        {
+          r: "Farmacéutico",
+          t: "Registrar la recepción de un pedido",
+          k: ["recepcion", "recibir", "recibidas", "aceptadas", "diferencia", "llego"],
+          a: "Menú <b>Registrar recepción</b>: en el pedido Aprobado anote las unidades recibidas y las aceptadas (las aceptadas no pueden superar a las recibidas) y una observación. El stock sube solo con las aceptadas y la recepción no puede repetirse.",
+        },
+        {
+          t: "Problemas comunes",
+          c: 1,
+          k: [
+            "error",
+            "no puedo",
+            "no aparece",
+            "no funciona",
+            "problema",
+            "falla",
+            "no deja",
+            "duplicado",
+            "no sale",
+          ],
+          a: "<b>No se confirma la cita:</b> falta el pago en Caja.<br><b>No hay horarios:</b> el médico ya los tiene ocupados; pruebe otra fecha u otro médico.<br><b>DNI duplicado:</b> ya existe un paciente con ese DNI.<br><b>No se entrega la orden:</b> falta el pago o el stock no alcanza.<br><b>No veo pacientes en Atención:</b> la cita debe tener preconsulta y ser de su médico (el jefe ve todas).<br><b>Recepción rechazada:</b> las aceptadas superan a las recibidas.",
+        },
+      ];
+      AYUDA.push(
+        {
+          r: "Administrador",
+          t: "Panel de supervisión",
+          k: ["panel", "supervis", "pendiente", "alerta", "resumen", "monitor", "todo al dia"],
+          a: "Menú <b>Panel de supervisión</b>: muestra los pendientes por área (Caja, Recepción, Enfermería, Médicos, Farmacia y Administración), las cifras de cada módulo, la carga de cada médico y los medicamentos con stock bajo.",
+        },
+        {
+          r: "Administrador",
+          t: "Roles y funciones",
+          k: ["roles", "funciones", "responsable", "quien hace", "permisos de"],
+          a: "Menú <b>Roles y funciones</b>: tabla con cada rol, su responsable, usuario, módulos del menú, requisitos que cubre, acciones correctas y rechazadas, y su última actividad.",
+        },
+        {
+          r: "Administrador",
+          t: "Bitácora de actividad",
+          k: [
+            "bitacora",
+            "historial de acciones",
+            "auditoria",
+            "actividad",
+            "registro de acciones",
+          ],
+          a: "Menú <b>Bitácora de actividad</b>: lista las últimas 100 acciones de todos los roles, con fecha, usuario y resultado. Las <i>rechazadas</i> son intentos bloqueados por una regla del sistema. Puede filtrar por rol o vaciar la bitácora.",
+        },
+      );
+      function msg(html, w) {
+        const m = document.createElement("div");
+        m.className = "mg " + w;
+        m.innerHTML = html;
+        $("bm").append(m);
+        $("bm").scrollTop = 1e6;
+      }
+      function botSync() {
+        const b = $("bot"),
+          k = U ? U.r : "-";
+        if (b.dataset.rol === k) return;
+        b.dataset.rol = k;
+        $("bm").innerHTML = "";
+        msg(
+          `Hola${U ? ", " + esc(U.n.split(" ")[0]) : ""}. Soy el asistente de ayuda: un manual interactivo con respuestas predefinidas (no es una IA). Escriba su pregunta o elija un tema.`,
+          "b",
+        );
+        $("bc").innerHTML = AYUDA.map((e, i) => [e, i])
+          .filter(([e]) => e.c || (U && e.r == U.r))
+          .map(
+            ([e, i]) => `<button type="button" class="sm s" onclick="ask('',${i})">${e.t}</button>`,
+          )
+          .join("");
+      }
+      function toggleBot() {
+        $("bot").classList.toggle("on");
+        if ($("bot").classList.contains("on")) $("bq").focus();
+      }
+      function ask(t, i) {
+        const q = norm(t);
+        let e = AYUDA[i],
+          best = 0;
+        if (e) t = e.t;
+        else {
+          if (!q.trim()) return;
+          AYUDA.forEach((x) => {
+            const s0 = x.k.reduce((n, w) => n + (q.includes(norm(w)) ? 1 : 0), 0),
+              s = s0 ? s0 + (x.r && U && x.r == U.r ? 0.5 : 0) : 0;
+            if (s > best) {
+              best = s;
+              e = x;
+            }
+          });
+        }
+        msg(esc(t), "u");
+        if (!e)
+          return msg(
+            "No encontré una respuesta exacta. Pruebe con palabras como sesión, paciente, cita, pago, preconsulta, atención, receta, medicamentos, orden, reposición, recepción, estados o apariencia, o elija un tema de los botones.",
+            "b",
+          );
+        const nota =
+          e.r && U && U.r != e.r
+            ? `<i>Esta tarea corresponde al rol ${e.r}; no aparece en el menú de su cuenta.</i><br>`
+            : "";
+        msg(nota + (typeof e.a == "function" ? e.a() : e.a), "b");
+      }
+      function askF(ev) {
+        ev.preventDefault();
+        const i = $("bq");
+        ask(i.value);
+        i.value = "";
+      }
+
+      /* DIBUJO DE LA INTERFAZ */
+      function render() {
+        botSync();
+        const a = $("app");
+        if (!U) {
+          a.innerHTML = `<div class="login"><div class="card"><h1 style="color:var(--pri)">Clínica Salud Vida</h1><p class="sub">Prototipo académico · Ingeniería de Requerimientos (datos ficticios)</p>
+<form onsubmit="A.login(event)">${F("Usuario", '<input name="u" required autofocus>')}${F("Contraseña", '<input type="password" name="p" required>')}<p><button>Iniciar sesión</button></p></form></div>
+<div class="card"><h2>Cuentas de prueba</h2>${T(
+            ["Rol", "Usuario", "Contraseña", ""],
+            USERS.map((u) => [
+              u.t || u.r,
+              `<code>${u.u}</code>`,
+              `<code>${u.p}</code>`,
+              `<button type="button" class="sm s" onclick="A.fill('${u.u}')">Usar</button>`,
+            ]),
+          )}<p class="mut">Acceso simulado: las credenciales están visibles y los datos se guardan sin cifrar en este navegador. No es seguridad real.</p></div></div>`;
+          return;
+        }
+        const m = MENU[U.r];
+        if (!m.some((x) => x[0] == V)) V = "ini";
+        a.innerHTML = `<div class="app"><aside><div class="brand">Salud Vida</div><div class="who">${esc(U.n)}<br>${U.t || U.r}</div>${SEC.map(
+          (s, i) => {
+            const it = m.filter((x) => x[2] == i);
+            return it.length
+              ? `<div class="sec">${s}</div>` +
+                  it
+                    .map(
+                      (x) =>
+                        `<a class="${x[0] == V ? "on" : ""}" onclick="go('${x[0]}')">${x[1]}</a>`,
+                    )
+                    .join("")
+              : "";
+          },
+        ).join("")}
+<div class="sec">Sesión</div><a onclick="A.logout()">Cerrar sesión</a><a onclick="A.reset()" style="color:var(--mut);font-size:.87rem">Restablecer datos demo</a></aside>
+<main><h1>${m.find((x) => x[0] == V)[1]}</h1><p class="sub">${SEC[m.find((x) => x[0] == V)[2]]}</p>${VW[V]()}</main></div>`;
+      }
+      applyCfg();
+      render();
+    </script>
+  </body>
+</html>
